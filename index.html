@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Astrólogo Inteligente</title>
 <script>(function () { var t = null; try { t = JSON.parse(localStorage.getItem("astro.tema")); } catch (e) {} var claro = t ? t === "claro" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches); if (claro) document.documentElement.dataset.tema = "claro"; })();</script>
-<link rel="stylesheet" href="css/estilo.css?v=1795543770">
+<link rel="stylesheet" href="css/estilo.css?v=1795559168">
 </head>
 <body>
 <header class="barra">
@@ -56,8 +56,10 @@
     <p class="nota">La hora exacta define el Ascendente y las casas. Si no la sabes, deja 12:00 y toma con pinzas todo lo que dependa de casas.</p>
     <fieldset>
       <legend>Lugar de nacimiento</legend>
-      <div class="fila"><input id="pNacBusca" placeholder="Ciudad (ej. Rosario)"><button type="button" class="sec" data-busca="Nac">Buscar</button></div>
+      <div class="fila"><input id="pNacBusca" placeholder="Ciudad (ej. Rosario)"><button type="button" class="sec" data-busca="Nac">Buscar</button><button type="button" class="sec" data-mapa="Nac">Mapa</button></div>
       <div class="resultados" id="pNacRes"></div>
+      <div class="mapa" id="pNacMapa" hidden></div>
+      <p class="nota" id="pNacMapaMsg" hidden></p>
       <div class="fila tres">
         <label>Latitud <input id="pNacLat" type="number" step="any" required></label>
         <label>Longitud <input id="pNacLon" type="number" step="any" required></label>
@@ -68,8 +70,10 @@
       <legend>Dónde vives ahora (para elegir momentos)</legend>
       <label class="check"><input type="checkbox" id="pMismo" checked> El mismo lugar</label>
       <div id="pActBloque" hidden>
-        <div class="fila"><input id="pActBusca" placeholder="Ciudad"><button type="button" class="sec" data-busca="Act">Buscar</button></div>
+        <div class="fila"><input id="pActBusca" placeholder="Ciudad"><button type="button" class="sec" data-busca="Act">Buscar</button><button type="button" class="sec" data-mapa="Act">Mapa</button></div>
         <div class="resultados" id="pActRes"></div>
+      <div class="mapa" id="pActMapa" hidden></div>
+      <p class="nota" id="pActMapaMsg" hidden></p>
         <div class="fila tres">
           <label>Latitud <input id="pActLat" type="number" step="any"></label>
           <label>Longitud <input id="pActLon" type="number" step="any"></label>
@@ -86,18 +90,18 @@
   </form>
 </dialog>
 
-<script src="js/vendor/astronomy.browser.min.js?v=1795543770"></script>
-<script src="js/motor.js?v=1795543770"></script>
-<script src="js/reglas.js?v=1795543770"></script>
-<script src="js/textos.js?v=1795543770"></script>
-<script src="js/personas.js?v=1795543770"></script>
+<script src="js/vendor/astronomy.browser.min.js?v=1795559168"></script>
+<script src="js/motor.js?v=1795559168"></script>
+<script src="js/reglas.js?v=1795559168"></script>
+<script src="js/textos.js?v=1795559168"></script>
+<script src="js/personas.js?v=1795559168"></script>
 <script src="js/vendor/supabase.js"></script>
 <script src="js/cuenta.js"></script>
-<script src="js/app.js?v=1795543770"></script>
+<script src="js/app.js?v=1795559168"></script>
 <script src="js/biblioteca.js"></script>
 <script src="js/manual.js"></script>
-<script src="js/confidente.js?v=1795543770"></script>
-<script src="js/confidente-ui.js?v=1795543770"></script>
-<script src="js/voces.js?v=1795543770"></script>
+<script src="js/confidente.js?v=1795559168"></script>
+<script src="js/confidente-ui.js?v=1795559168"></script>
+<script src="js/voces.js?v=1795559168"></script>
 </body>
 </html>

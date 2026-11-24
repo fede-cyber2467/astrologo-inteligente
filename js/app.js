@@ -324,7 +324,7 @@
       '<li><b>Horas planetarias</b> como detalle menor (Lilly, Warnock).</li></ul>' +
       '<p>El puntaje compara momentos entre sí dentro del rango que pides: no existe la carta perfecta, se elige la mejor disponible.</p></div>' +
       '<div class="tarjeta"><h2>Cómo arma el pronóstico</h2><p><b>Año</b>: profección anual y señor del año (técnica helenística recuperada por Brennan y Demetra George), tránsitos de Júpiter a Plutón con orbe de 1° como los trabaja Robert Hand, y eclipses por casa. <b>Mes</b>: lunaciones por casa natal, cambios de dirección y tránsitos de Sol, Mercurio, Venus y Marte. <b>Semana</b>: la Luna por tus casas y los tránsitos exactos de cada día. La lectura de la carta combina la mirada tradicional (secta, regente del Ascendente, dignidades) con la psicológica de Liz Greene y Howard Sasportas.</p></div>' +
-      '<div class="tarjeta"><h2>Créditos</h2><p class="suave">Cálculo astronómico: astronomy-engine, de Don Cross (licencia MIT). Ciudades y husos horarios: GeoNames (geonames.org), licencia Creative Commons Atribución 4.0.</p></div>' +
+      '<div class="tarjeta"><h2>Créditos</h2><p class="suave">Cálculo astronómico: astronomy-engine, de Don Cross (licencia MIT). Ciudades y husos horarios: GeoNames (geonames.org), licencia Creative Commons Atribución 4.0. Mapa: Leaflet, con cartografía de © OpenStreetMap y sus colaboradores.</p></div>' +
       '<div class="tarjeta"><h2>Lo que todavía no hace</h2><p>No calcula revolución solar, progresiones, arcos solares ni liberación zodiacal, y no ofrece casas Placidus ni otras definiciones de Luna vacía. Varias reglas atribuidas a Vivian Robson y Doroteo vienen de fuentes secundarias y conviene cotejarlas con los libros.</p>' +
       '<p class="suave">La astrología es una tradición simbólica, no una ciencia predictiva: usala como una herramienta de reflexión y de elección de momentos, no como garantía de resultados. Para decisiones de salud, legales o de dinero, consulta con profesionales.</p></div>';
   }
@@ -400,6 +400,48 @@
       if (!lista.length) res.textContent = 'No encontré esa ciudad. Prueba con la ciudad más cercana o carga las coordenadas a mano.';
     }).catch(function () { res.textContent = 'No pude cargar la lista de ciudades. Carga latitud, longitud y zona horaria a mano.'; });
   }
+  /* Mapa para ubicar el lugar a mano (Leaflet + OpenStreetMap). Se carga recién al pedirlo. */
+  var leaflet = null, mapas = {};
+  function cargarLeaflet() {
+    if (!leaflet) leaflet = new Promise(function (ok, mal) {
+      var c = document.createElement('link'); c.rel = 'stylesheet'; c.href = 'js/vendor/leaflet/leaflet.css'; document.head.appendChild(c);
+      var j = document.createElement('script'); j.src = 'js/vendor/leaflet/leaflet.js'; j.onload = ok; j.onerror = function () { leaflet = null; mal(new Error('mapa')); }; document.head.appendChild(j);
+    });
+    return leaflet;
+  }
+  /** Ciudad de la lista más cercana a un punto: de ella se toma el huso horario. */
+  function ciudadCercana(d, lat, lon) {
+    var mejor = null, min = 1e9, k = Math.cos(lat * Math.PI / 180);
+    for (var i = 0; i < d.c.length; i++) { var c = d.c[i], dy = c[3] - lat, dx = (c[4] - lon) * k, q = dx * dx + dy * dy; if (q < min) { min = q; mejor = c; } }
+    return { c: mejor, km: Math.sqrt(min) * 111 };
+  }
+  function abrirMapa(k) {
+    var caja = $('#p' + k + 'Mapa'), msg = $('#p' + k + 'MapaMsg');
+    if (!caja.hidden) { caja.hidden = true; msg.hidden = true; return; }
+    caja.hidden = false; msg.hidden = false; msg.textContent = 'Cargando el mapa…';
+    Promise.all([cargarLeaflet(), cargarCiudades()]).then(function (r) {
+      var d = r[1], L = window.L, lat = parseFloat($('#p' + k + 'Lat').value), lon = parseFloat($('#p' + k + 'Lon').value), tiene = isFinite(lat) && isFinite(lon);
+      var m = mapas[k];
+      if (!m) {
+        m = mapas[k] = { mapa: L.map(caja, { zoomControl: true, attributionControl: true }).setView(tiene ? [lat, lon] : [-20, -60], tiene ? 10 : 3), punto: null };
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 16, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(m.mapa);
+        m.mapa.on('click', function (ev) { elegir(ev.latlng.lat, ev.latlng.lng); });
+      } else if (tiene) m.mapa.setView([lat, lon], Math.max(m.mapa.getZoom(), 9));
+      function marcar(la, lo) { if (m.punto) m.punto.setLatLng([la, lo]); else m.punto = L.circleMarker([la, lo], { radius: 9, color: '#e6c16a', weight: 3, fillColor: '#e6c16a', fillOpacity: 0.5 }).addTo(m.mapa); }
+      function elegir(la, lo) {
+        lo = ((lo + 540) % 360) - 180;
+        var n = ciudadCercana(d, la, lo), nombre = [n.c[0], d.a[n.c[1]], pais(n.c[2])].filter(Boolean).join(', ');
+        marcar(la, lo);
+        $('#p' + k + 'Lat').value = la.toFixed(3); $('#p' + k + 'Lon').value = lo.toFixed(3); $('#p' + k + 'Zona').value = d.z[n.c[5]];
+        $('#p' + k + 'Busca').value = n.km < 8 ? nombre : 'Cerca de ' + nombre;
+        msg.textContent = 'Punto elegido. Huso horario tomado de ' + n.c[0] + ' (a ' + Math.round(n.km) + ' km): ' + d.z[n.c[5]] + '.';
+      }
+      if (tiene) marcar(lat, lon);
+      msg.textContent = 'Acerca el mapa y toca el lugar exacto. Vuelve a tocar "Mapa" para cerrarlo.';
+      setTimeout(function () { m.mapa.invalidateSize(); }, 60);
+    }).catch(function () { msg.textContent = 'No pude cargar el mapa. Usa el buscador o carga las coordenadas a mano.'; });
+  }
+
   function leerLugar(k) {
     var zona = $('#p' + k + 'Zona').value.trim(), lat = parseFloat($('#p' + k + 'Lat').value), lon = parseFloat($('#p' + k + 'Lon').value);
     if (!isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 89 || Math.abs(lon) > 180) throw new Error('Revisa la latitud y la longitud.');
@@ -448,6 +490,7 @@
   $('#btnCancelar').onclick = function () { $('#dlgPerfil').close(); };
   $('#pMismo').onchange = function () { $('#pActBloque').hidden = this.checked; };
   $('#frmPerfil').onsubmit = guardarPerfil;
+  document.querySelectorAll('[data-mapa]').forEach(function (b) { b.onclick = function () { abrirMapa(b.dataset.mapa); }; });
   document.querySelectorAll('[data-busca]').forEach(function (b) { b.onclick = function () { buscarCiudad(b.dataset.busca); }; });
   ['Nac', 'Act'].forEach(function (k) { $('#p' + k + 'Busca').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); buscarCiudad(k); } }); });
   $('#btnBorrar').onclick = function () {
