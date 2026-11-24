@@ -2,7 +2,7 @@
 // La app envía las instrucciones, la conversación y las herramientas; el servidor fija el modelo y los límites.
 import { CORS, identificar, responder } from "../_compartido/comun.ts";
 
-const MODELO = "claude-opus-5-5";
+const MODELO = "claude-sonnet-5-5";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
