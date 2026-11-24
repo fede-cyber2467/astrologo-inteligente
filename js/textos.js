@@ -117,6 +117,19 @@
     { corto: 'Trabajo', de: 'del trabajo', en: 'en el trabajo', det: 'tu carrera, tu vocación y tu reputación' },
     { corto: 'Amigos', de: 'de los amigos', en: 'con amigos y proyectos', det: 'las amistades, los grupos y los planes a futuro' },
     { corto: 'Descanso', de: 'del descanso', en: 'en tu mundo interior', det: 'el descanso, el retiro y lo que toca soltar' }];
+  var GLOSA = { Sol: 'foco y energía', Luna: 'movimiento emocional', Mercurio: 'ideas y conversaciones', Venus: 'afecto y disfrute', Marte: 'impulso, y algo de fricción', 'Júpiter': 'expansión y confianza', Saturno: 'exigencia y orden', Urano: 'cambios inesperados', Neptuno: 'sensibilidad', 'Plutón': 'transformación' };
+  /** Explica en palabras simples el motivo principal de un área. */
+  function motivoLlano(txt) {
+    var m;
+    if ((m = /^(\S+)( retrógrado)? transita tu casa/.exec(txt))) return (m[1] === 'Sol' ? 'el Sol' : m[1]) + ' pasa por esta zona de tu carta y trae ' + GLOSA[m[1]] + (m[2] ? ', en modo revisión' : '');
+    if ((m = /^Luna (nueva|llena) en tu casa/.exec(txt))) return m[1] === 'nueva' ? 'hay Luna nueva en esta zona, buen momento para sembrar algo' : 'hay Luna llena en esta zona, algo llega a su punto máximo';
+    if (/^La Luna pasa hoy/.test(txt)) return 'la Luna pasa hoy por esta zona';
+    if ((m = /^(La Luna de hoy|\S+) en (\S+) con tu (.+?) natal/.exec(txt))) {
+      var v = m[2] === 'conjunción' ? 'se junta con' : (m[2] === 'trígono' || m[2] === 'sextil') ? 'acompaña a' : 'presiona a';
+      return (m[1] === 'La Luna de hoy' ? 'la Luna de hoy' : m[1] === 'Sol' ? 'el Sol' : m[1]) + ' ' + v + ' tu ' + m[3] + ' natal' + (/proceso de fondo/.test(txt) ? ', un proceso que viene de hace tiempo' : '');
+    }
+    return null;
+  }
   /** Título y texto de un período. `que` = 'Día', 'Semana' o 'Mes'. */
   function textoClima(cl, que, per) {
     var top = cl.top;
@@ -124,6 +137,8 @@
     var a = AREA[top.casa], bueno = top.tono >= -0.5, c = (per && per.clima) || { favor: 'Viene con viento a favor: es para aprovecharlo.', neutro: 'Es donde más movimiento vas a notar.', exige: 'Pide paciencia: mejor ordenar que forzar.' };
     var titulo = bueno ? que + ' ' + a.de : que + ' exigente ' + a.en;
     var p = 'El foco está en ' + a.det + '. ' + (top.tono > 1.5 ? c.favor : bueno ? c.neutro : c.exige);
+    var mot = top.motivos[0] && motivoLlano(top.motivos[0].txt);
+    if (mot) p += ' Lo mueve: ' + mot + '.';
     if (cl.mejor && cl.mejor !== top) p += ' Lo que mejor fluye: ' + AREA[cl.mejor.casa].corto.toLowerCase() + '.';
     if (cl.cuidado && cl.cuidado !== top) p += ' Ve con más cuidado ' + AREA[cl.cuidado.casa].en + '.';
     if (cl.lunaCasa && cl.lunaCasa !== top.casa) p += ' La Luna de hoy pone el ánimo en ' + AREA[cl.lunaCasa].det + '.';
