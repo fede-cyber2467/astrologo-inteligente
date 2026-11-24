@@ -40,3 +40,8 @@ begin
   return query select u.consultas, u.voz_caracteres from public.uso u where u.usuario = p_usuario and u.dia = hoy;
 end $$;
 revoke all on function public.sumar_uso(uuid, int, int) from public, anon, authenticated;
+
+-- Permisos explícitos (el proyecto no los otorga automáticamente a las tablas nuevas)
+grant select on public.cuentas, public.uso to authenticated;
+grant all on public.cuentas, public.uso to service_role;
+grant execute on function public.sumar_uso(uuid, int, int) to service_role;

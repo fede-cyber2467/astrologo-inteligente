@@ -32,6 +32,7 @@
   function config(id) { return (A.leer('astro.voces', {}) || {})[id] || DEFECTO[id]; }
   function tipoDe(id) { return TIPOS.filter(function (x) { return x.id === id; })[0]; }
   function sintetizar(c, texto) {
+    if (window.Cuenta && Cuenta.activa() && /Wavenet|Standard/.test(c.voz)) return Cuenta.llamar('voz', { texto: texto.slice(0, 4500), voz: c.voz, pitch: c.pitch, rate: c.rate }).then(function (j) { return 'data:audio/mpeg;base64,' + j.audio; });
     var x = tipoDe(c.tipo);
     function intento(cod) {
       var cuerpo = { input: { text: texto.slice(0, 4500) }, voice: { languageCode: c.lang, name: c.voz }, audioConfig: { audioEncoding: cod } };
@@ -143,5 +144,5 @@
     $('#vQuitar').onclick = function (ev) { ev.preventDefault(); try { localStorage.removeItem('astro.gclave'); } catch (e) { /* nada */ } voces = null; render(el); };
   }
 
-  window.Voces = { render: render, hablar: hablar, callar: callar, disponible: function () { return !!A.leer('astro.gclave', ''); }, config: config };
+  window.Voces = { render: render, hablar: hablar, callar: callar, disponible: function () { return !!A.leer('astro.gclave', '') || !!(window.Cuenta && Cuenta.activa()); }, config: config };
 })();

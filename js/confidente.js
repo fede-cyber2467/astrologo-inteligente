@@ -97,6 +97,8 @@
   }
 
   function llamar(clave, cuerpo, conFallback) {
+    // Con sesión iniciada, la consulta pasa por el servidor propio: la clave de Claude no está en la app
+    if (window.Cuenta && Cuenta.activa()) return Cuenta.llamar('astrologo', { system: cuerpo.system, tools: cuerpo.tools, messages: cuerpo.messages });
     var hd = { 'content-type': 'application/json', 'x-api-key': clave, 'anthropic-version': '2026-10-21', 'anthropic-dangerous-direct-browser-access': 'true' };
     var b = Object.assign({}, cuerpo);
     if (conFallback) { hd['anthropic-beta'] = 'server-side-fallback-2026-07-01'; b.fallbacks = 'default'; }

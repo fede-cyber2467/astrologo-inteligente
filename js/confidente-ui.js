@@ -60,19 +60,22 @@
 
   function fmt(t) { return A.h(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[\s(«"])\*([^*\n]+?)\*/g, '$1<i>$2</i>'); }
   function montar(el) {
-    var id = A.est.perfil.id + ':' + ((A.persona() || {}).id || ''), clave = A.leer('astro.clave', ''), activo = !!clave && A.leer('astro.ia', true) !== false, reg = registro[id] = registro[id] || [], hilo = C.hilos[id] = C.hilos[id] || [];
+    var id = A.est.perfil.id + ':' + ((A.persona() || {}).id || ''), clave = A.leer('astro.clave', ''), conCuenta = !!(window.Cuenta && Cuenta.activa()), puede = !!clave || conCuenta, activo = puede && A.leer('astro.ia', true) !== false, reg = registro[id] = registro[id] || [], hilo = C.hilos[id] = C.hilos[id] || [];
     el.innerHTML =
       '<form class="entrada" id="cForm"><textarea id="cTxt" placeholder="' + A.h((A.persona() || {}).lugar || 'Escribe tu consulta') + '"></textarea><button type="button" id="cMic" class="mic" title="Hablar en vez de escribir" aria-label="Hablar en vez de escribir"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button id="cEnviar" class="enviar" title="Consultar" aria-label="Consultar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg></button></form>' +
       '<div class="modo"><label class="perilla"><input type="checkbox" id="cModo"' + (activo ? ' checked' : '') + '><span class="pista"></span><b>Modo inteligente</b></label>' +
       '<span class="nota" id="cModoTxt">' + (activo ? 'Conversa de lo que quieras: relaciono todo tu panorama.' : 'Apagado: respondo cuándo conviene algo y cómo viene tu día, semana, mes o año.') + '</span>' +
-      (clave ? '<a href="#" class="nota" id="cInvitar2">Invitar</a><a href="#" class="nota" id="cVerClave">Clave</a>' : '') + '</div>' +
+      (clave ? '<a href="#" class="nota" id="cInvitar2">Invitar</a>' : '') + (puede ? '<a href="#" class="nota" id="cVerClave">' + (conCuenta ? 'Cuenta' : 'Clave') + '</a>' : '') + '</div>' +
       '<div class="sugerencias" id="cSug">' + ['¿Cómo viene mi semana?', '¿Cuándo me conviene firmar un contrato?', 'Quiero viajar el mes que viene', '¿Cuál es el tema de mi año?'].map(function (s) { return '<button type="button">' + s + '</button>'; }).join('') + '</div>' +
       '<div class="chat" id="cChat"></div>' +
       '<div class="config" id="cPanel" hidden>' +
+      (conCuenta ? '<p class="nota">Sesión iniciada como <b>' + A.h(Cuenta.correo()) + '</b>. <a href="#" id="cSalir">Cerrar sesión</a></p>'
+        : (window.Cuenta && Cuenta.disponible() ? '<p class="nota">Entra con tu correo para usar el astrólogo inteligente y su voz. Te enviamos un enlace; ábrelo en este mismo dispositivo.</p>' +
+          '<div class="fila"><input id="cCorreo" type="email" autocomplete="email" placeholder="tu@correo.com"><button type="button" id="cEntrar">Entrar</button></div><p class="nota" id="cCorreoMsg"></p>' : '')) +
       (clave ? '<p class="nota">Con el modo inteligente, tus mensajes y tu carta se envían a Anthropic para generar cada respuesta. <a href="#" id="cQuitar">Quitar la clave de este navegador</a></p>' +
           '<div class="fila" style="align-items:center"><button type="button" class="sec" id="cInvitar">Copiar invitación</button><span class="nota" id="cInvTxt" style="margin:0;flex:1">Copia un mensaje con el enlace y un código. Quien lo use tendrá el modo inteligente y las voces con tus claves: pásalo solo a quien quieras que la pruebe.</span></div>'
-        : '<p class="nota">Para encenderlo hace falta una clave de API de Claude (se crea en platform.claude.com y se paga por uso). Queda guardada solo en este navegador y viaja únicamente a Anthropic, junto con tu carta y tus mensajes.</p>' +
-          '<div class="fila"><input id="cClave" type="password" autocomplete="off" placeholder="Clave sk-ant-… o mensaje de invitación"><button type="button" id="cGuardar">Encender</button></div>') + '</div>';
+        : '<details><summary>Tengo una clave o una invitación</summary><p class="nota">Para encenderlo sin cuenta hace falta una clave de API de Claude (se crea en platform.claude.com y se paga por uso). Queda guardada solo en este navegador y viaja únicamente a Anthropic, junto con tu carta y tus mensajes.</p>' +
+          '<div class="fila"><input id="cClave" type="password" autocomplete="off" placeholder="Clave sk-ant-… o mensaje de invitación"><button type="button" id="cGuardar">Encender</button></div></details>') + '</div>';
     var chat = el.querySelector('#cChat'), txtEl = el.querySelector('#cTxt'), btn = el.querySelector('#cEnviar');
     var porVoz = false;
     el.classList.add('czona'); el.classList.toggle('conversando', reg.length > 0);
@@ -131,8 +134,8 @@
     var modo = el.querySelector('#cModo'), panel = el.querySelector('#cPanel'), ver = el.querySelector('#cVerClave');
     el.querySelector('.modo').after(panel);
     modo.onchange = function () {
-      if (clave) { A.guardar('astro.ia', modo.checked); montar(el); }
-      else { panel.hidden = !modo.checked; if (modo.checked) el.querySelector('#cClave').focus(); }
+      if (puede) { A.guardar('astro.ia', modo.checked); montar(el); }
+      else { panel.hidden = !modo.checked; var c = el.querySelector('#cCorreo') || el.querySelector('#cClave'); if (modo.checked && c) c.focus(); }
     };
     if (ver) ver.onclick = function (ev) { ev.preventDefault(); panel.hidden = !panel.hidden; };
     var inv = el.querySelector('#cInvitar'), inv2 = el.querySelector('#cInvitar2');
@@ -143,10 +146,21 @@
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(ok, function () { window.prompt('Copia este mensaje:', u); });
       else window.prompt('Copia este mensaje:', u);
     };
+    var ent = el.querySelector('#cEntrar'), sal = el.querySelector('#cSalir');
+    if (ent) ent.onclick = function () {
+      var c = el.querySelector('#cCorreo').value.trim(), m = el.querySelector('#cCorreoMsg');
+      if (!/^\S+@\S+\.\S+$/.test(c)) { m.textContent = 'Escribe un correo válido.'; return; }
+      ent.disabled = true; m.textContent = 'Enviando…';
+      Cuenta.entrar(c).then(function () { m.textContent = 'Listo: revisa tu correo y abre el enlace en este dispositivo. Puede tardar un minuto.'; }, function (e) { m.textContent = e.message; }).then(function () { ent.disabled = false; });
+    };
+    if (sal) sal.onclick = function (ev) { ev.preventDefault(); Cuenta.salir(); };
+    ultimo = el;
     var g = el.querySelector('#cGuardar'), q = el.querySelector('#cQuitar');
     if (g) g.onclick = function () { var v = el.querySelector('#cClave').value.trim(); if (v && A.aplicarInvitacion(v)) { montar(el); return; } if (v) { A.guardar('astro.clave', v); A.guardar('astro.ia', true); montar(el); } };
     if (q) q.onclick = function (ev) { ev.preventDefault(); try { localStorage.removeItem('astro.clave'); } catch (e) { /* nada */ } montar(el); };
   }
 
+  var ultimo = null;
+  if (window.Cuenta) Cuenta.alCambiar(function () { if (ultimo && document.body.contains(ultimo)) montar(ultimo); });
   window.ConfidenteUI = { montar: montar, local: local };
 })();

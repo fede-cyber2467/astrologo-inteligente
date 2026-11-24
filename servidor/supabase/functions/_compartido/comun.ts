@@ -19,7 +19,10 @@ export function responder(cuerpo: unknown, estado = 200) {
 
 /** Identifica a la persona por su sesión y devuelve su plan vigente y su uso de hoy. */
 export async function identificar(req: Request) {
-  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  // La clave privilegiada cambia de nombre según la versión del proyecto
+  const clave = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY") ?? (() => { try { return Object.values(JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}"))[0] as string; } catch { return undefined; } })();
+  if (!clave) return { error: responder({ error: "El servidor no encuentra su clave interna.", variables: Object.keys(Deno.env.toObject()).filter((k) => k.startsWith("SUPABASE_") || k.startsWith("SB_")) }, 500) };
+  const admin = createClient(Deno.env.get("SUPABASE_URL")!, clave);
   const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
   const { data, error } = await admin.auth.getUser(token);
   if (error || !data.user) return { error: responder({ error: "Inicia sesión para usar el astrólogo inteligente." }, 401) };
