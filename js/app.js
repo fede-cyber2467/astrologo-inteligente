@@ -314,6 +314,7 @@
       '<li><b>Te da día y hora.</b> Para elegir un momento evalúa cada 15 minutos con decenas de criterios de la astrología tradicional y te muestra las mejores ventanas.</li>' +
       '<li><b>Sigue un método, no una ocurrencia.</b> Las reglas vienen de técnicas documentadas de la tradición helenística, medieval y moderna, y puedes abrir el porqué de cada conclusión.</li>' +
       '<li><b>Cinco voces, un mismo rigor.</b> Eliges cómo quieres que te lo cuenten; los cálculos son los mismos.</li></ul></div>' +
+      '<div class="tarjeta"><h2>La biblioteca del astrólogo</h2><p>En modo inteligente, el astrólogo puede consultar el texto original de obras clásicas de astrología que están en dominio público, y citar de dónde sale lo que dice.</p><div id="mBiblio" class="suave"></div></div>' +
       '<div class="tarjeta"><h2>Cómo calcula</h2><p>Las posiciones salen de <b>astronomy-engine</b>, una librería astronómica abierta con precisión de alrededor de un minuto de arco. Se usa el zodíaco tropical, casas de signo entero y regencias tradicionales (los siete planetas clásicos). El Ascendente y el Medio Cielo se calculan al grado y minuto para tu latitud y longitud, respetando el huso horario histórico de tu lugar de nacimiento.</p></div>' +
       '<div class="tarjeta"><h2>Cómo elige un momento</h2><p>El puntaje sigue el orden de prioridades que enseñan Chris Brennan y Leisa Schaim: primero el regente del Ascendente, después la Luna, los planetas en los ángulos, la casa del tema y, al final, tu carta natal como desempate.</p>' +
       '<ul><li><b>Secta</b>: de día Júpiter es el gran benéfico y Marte el planeta difícil; de noche, Venus y Saturno. El maléfico contrario a la secta en una casa angular es lo que más resta.</li>' +
@@ -327,8 +328,14 @@
       '<p class="suave">La astrología es una tradición simbólica, no una ciencia predictiva: usala como una herramienta de reflexión y de elección de momentos, no como garantía de resultados. Para decisiones de salud, legales o de dinero, consulta con profesionales.</p></div>';
   }
 
+  function pintarBiblioteca() {
+    var el = $('#mBiblio'); if (!el || !window.Biblioteca) return;
+    var c = Biblioteca.catalogo();
+    el.innerHTML = c.length ? '<ul>' + c.map(function (o) { return '<li>' + h(o.autor) + ', <i>' + h(o.titulo) + '</i> (' + o.anio + ')</li>'; }).join('') + '</ul><p>' + c.length + ' obras, ' + c.reduce(function (n, o) { return n + o.pasajes; }, 0).toLocaleString('es') + ' pasajes consultables. Son textos antiguos: el astrólogo toma la técnica y la adapta a la vida de hoy.</p>' : 'La biblioteca no está disponible en este momento.';
+  }
+
   /* ---------- pestañas ---------- */
-  var RENDER = { voces: function () { window.Voces.render($('#tab-voces')); }, inicio: renderInicio, carta: renderCarta, pronostico: renderPronostico, elegir: renderElegir, metodo: renderMetodo };
+  var RENDER = { voces: function () { window.Voces.render($('#tab-voces')); }, inicio: renderInicio, carta: renderCarta, pronostico: renderPronostico, elegir: renderElegir, metodo: function () { renderMetodo(); pintarBiblioteca(); } };
   function mostrar(tab) {
     est.tab = tab;
     document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === tab); });
@@ -423,5 +430,5 @@
 
   window.App = { aplicarInvitacion: aplicarInvitacion, enlaceInvitacion: enlaceInvitacion, persona: persona, htmlFactores: htmlFactores, htmlPuntaje: htmlPuntaje, mostrar: mostrar, est: est, lugar: lugar, h: h, ymd: ymd, deYmd: deYmd, fDia: fDia, fHora: fHora, fDiaHora: fDiaHora, fConAnio: fConAnio, leer: leer, guardar: guardar, inicioDia: inicioDia };
   activar(leer('astro.activo', null)); pintarSelector();
-  window.addEventListener('DOMContentLoaded', function () { mostrar('inicio'); });
+  window.addEventListener('DOMContentLoaded', function () { mostrar('inicio'); if (window.Biblioteca) Biblioteca.iniciar(); });
 })();

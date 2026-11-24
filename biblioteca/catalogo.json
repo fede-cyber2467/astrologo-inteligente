@@ -1,0 +1,128 @@
+[
+ {
+  "id": "lilly-introduccion",
+  "titulo": "An Introduction to Astrology (Christian Astrology abreviado por Zadkiel)",
+  "autor": "William Lilly",
+  "anio": 1647,
+  "pasajes": 1052
+ },
+ {
+  "id": "ramesey-restaurata",
+  "titulo": "Astrologia Restaurata",
+  "autor": "William Ramesey",
+  "anio": 1653,
+  "pasajes": 1505
+ },
+ {
+  "id": "bonatti-anima",
+  "titulo": "Anima Astrologiae (las consideraciones de Bonatti, edición de Lilly y Coley)",
+  "autor": "Guido Bonatti",
+  "anio": 1676,
+  "pasajes": 163
+ },
+ {
+  "id": "manilio-astronomica",
+  "titulo": "Astronomica (traducción de Thomas Creech)",
+  "autor": "Marco Manilio",
+  "anio": 1700,
+  "pasajes": 319
+ },
+ {
+  "id": "ptolomeo-tetrabiblos",
+  "titulo": "Tetrabiblos (traducción de J. M. Ashmand)",
+  "autor": "Claudio Ptolomeo",
+  "anio": 1822,
+  "pasajes": 568
+ },
+ {
+  "id": "robson-estrellas",
+  "titulo": "The Fixed Stars and Constellations in Astrology",
+  "autor": "Vivian E. Robson",
+  "anio": 1923,
+  "pasajes": 492
+ },
+ {
+  "id": "leo-para-todos",
+  "titulo": "Astrology for All",
+  "autor": "Alan Leo",
+  "anio": 1910,
+  "pasajes": 769
+ },
+ {
+  "id": "leo-juzgar-natividad",
+  "titulo": "How to Judge a Nativity",
+  "autor": "Alan Leo",
+  "anio": 1928,
+  "pasajes": 1007
+ },
+ {
+  "id": "leo-sintesis",
+  "titulo": "The Art of Synthesis",
+  "autor": "Alan Leo",
+  "anio": 1926,
+  "pasajes": 777
+ },
+ {
+  "id": "leo-progresado",
+  "titulo": "The Progressed Horoscope",
+  "autor": "Alan Leo",
+  "anio": 1906,
+  "pasajes": 869
+ },
+ {
+  "id": "sepharial-horoscopo",
+  "titulo": "Astrology: How to Make and Read Your Own Horoscope",
+  "autor": "Sepharial",
+  "anio": 1920,
+  "pasajes": 222
+ },
+ {
+  "id": "raphael-horaria",
+  "titulo": "Raphael's Horary Astrology",
+  "autor": "Raphael",
+  "anio": 1917,
+  "pasajes": 238
+ },
+ {
+  "id": "raphael-guia",
+  "titulo": "A Guide to Astrology",
+  "autor": "Raphael",
+  "anio": 1905,
+  "pasajes": 288
+ },
+ {
+  "id": "heindel-mensaje",
+  "titulo": "The Message of the Stars",
+  "autor": "Max Heindel",
+  "anio": 1918,
+  "pasajes": 1092
+ },
+ {
+  "id": "heindel-simplificada",
+  "titulo": "Simplified Scientific Astrology",
+  "autor": "Max Heindel",
+  "anio": 1919,
+  "pasajes": 298
+ },
+ {
+  "id": "adams-lugar-en-el-sol",
+  "titulo": "Astrology: Your Place in the Sun",
+  "autor": "Evangeline Adams",
+  "anio": 1927,
+  "pasajes": 566
+ },
+ {
+  "id": "pearce-ciencia",
+  "titulo": "The Science of the Stars",
+  "autor": "Alfred J. Pearce",
+  "anio": 1881,
+  "pasajes": 356
+ },
+ {
+  "id": "zadkiel-manual",
+  "titulo": "The Hand-Book of Astrology",
+  "autor": "Zadkiel",
+  "anio": 1861,
+  "pasajes": 339
+ }
+]

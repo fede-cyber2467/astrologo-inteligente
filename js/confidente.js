@@ -22,6 +22,10 @@
       input_schema: { type: 'object', properties: { fecha_hora: { type: 'string', description: 'AAAA-MM-DDTHH:MM' } }, required: ['fecha_hora'] } }
   ];
 
+  var HERR_BIBLIOTECA = { name: 'consultar_biblioteca', description: 'Busca pasajes en la biblioteca de textos clásicos de astrología (obras originales en dominio público, en inglés). Úsala cuando citar la tradición le dé peso o precisión a la respuesta: qué dice un autor sobre una configuración, una regla para elegir momentos, el sentido de un planeta en una casa. No la uses en cada mensaje ni para preguntas simples. La consulta va en inglés, con los términos astrológicos clave.',
+    input_schema: { type: 'object', properties: { consulta: { type: 'string', description: 'Palabras clave en inglés, por ejemplo: "Moon void of course election journey" o "Saturn in the seventh house marriage".' }, autor: { type: 'string', description: 'Opcional: apellido del autor para limitar la búsqueda (por ejemplo "Lilly").' } }, required: ['consulta'] } };
+  function herramientas() { return window.Biblioteca && Biblioteca.disponible() ? HERRAMIENTAS.concat([HERR_BIBLIOTECA]) : HERRAMIENTAS; }
+
   function aFecha(s) { var p = String(s).split('T'), hm = (p[1] || '12:00').split(':'); return A.deYmd(p[0], +hm[0] || 0, +hm[1] || 0); }
   function facs(F, n) { return F.slice(0, n).map(function (f) { return (f.pts > 0 ? '+' : '') + f.pts + ' ' + f.txt; }); }
   function resumenMomento(r) {
@@ -67,6 +71,10 @@
       var s = R.semanal(e.natal, d);
       return { tema_destacado: T.textoClima(R.clima(e.natal, d, new Date(+d + 7 * DIA)), 'Semana'), dias: s.dias.map(function (x) { return { dia: A.fDia(x.fecha), tono: T.fraseTono(x.tono), luna: S[x.lunaSigno].n + ', casa natal ' + x.lunaCasa + ', ' + x.fase, luna_sobre: x.lunaToca, exactos: x.eventos.map(function (ev) { return A.fHora(ev.hora) + ' ' + P[ev.t.planeta].n + ' ' + ev.t.asp.n + ' ' + ev.t.nPunto + ' natal'; }) }; }), fondo: s.lentos.map(trTxt) };
     }
+    if (nombre === 'consultar_biblioteca') {
+      if (!window.Biblioteca || !Biblioteca.disponible()) throw new Error('La biblioteca no está disponible');
+      return Biblioteca.buscar(inp.consulta, inp.autor, 4).then(function (r) { return r.length ? { pasajes: r } : { pasajes: [], nota: 'Sin resultados. Prueba con otras palabras en inglés.' }; });
+    }
     throw new Error('Herramienta desconocida');
   }
 
@@ -80,6 +88,7 @@
       'Todas las posiciones, fechas y horas que menciones tienen que salir de las herramientas o de los datos de abajo: nunca las calcules de memoria ni las estimes. Cuando pregunten cuándo conviene hacer algo, usa buscar_momentos y propón dos o tres ventanas concretas con día y hora, explicando en lenguaje llano por qué son buenas y qué tienen en contra. El puntaje compara momentos entre sí dentro del rango; no existe la carta perfecta. Ubica siempre a la persona en el tiempo: los pronósticos van desde hoy hacia adelante, nunca desde enero. Cuando hables de "tu año", di de entrada qué período cubre (por ejemplo, "de aquí a noviembre de 2027"), ordena lo que cuentas empezando por lo más cercano a hoy, y cada vez que nombres un mes que cae en otro año calendario, di el año ("en enero de 2027"). No menciones nada que ya pasó como si estuviera por venir. Si la pregunta no trae rango de fechas, asume uno razonable y decilo.\n\n' +
       'Sé honesto: la astrología es una tradición simbólica y no garantiza resultados; ayudas a elegir y a reflexionar, y la decisión es de la persona. En temas de salud, legales o de inversiones puedes hablar del clima astrológico, pero aclarando que la decisión de fondo se toma con profesionales. La persona no sabe nada de astrología: hablale en lenguaje llano, primero la conclusión y el consejo práctico, y recién después, en una o dos frases, el porqué. Evita la jerga; si nombras un término técnico (casa, tránsito, retrógrado, Luna vacía), traducilo en el momento a lo que significa en la vida real. Relaciona lo que ves con lo que la persona te contó y con el resto de su panorama (su año, su mes), como haría un astrólogo que la conoce. Solo si pide profundizar, muestra el detalle técnico completo. Responde en texto corrido, sin tablas ni títulos, breve.\n\n' +
       'Tu respaldo, para darle peso a tu palabra cuando haga falta: no improvisas ni adivinas posiciones. Cada lectura sale de cálculos astronómicos exactos de la carta de esta persona (precisión de alrededor de un minuto de arco) y de técnicas documentadas de la tradición helenística, medieval y moderna. Dilo con naturalidad, en una sola frase, en tu primera respuesta de la conversación; después, solo si la persona duda de ti, pregunta por qué confiar o te compara con un chat de inteligencia artificial común. No lo repitas en cada mensaje. Nunca afirmes ser una persona, ni tener años de consulta, títulos o clientes, ni haber sido entrenado con libros o durante un tiempo determinado, ni ser el mejor astrólogo: eres un astrólogo de inteligencia artificial y, si te lo preguntan, lo dices con sencillez.\n\n' +
+      (window.Biblioteca && Biblioteca.disponible() ? 'Tienes una biblioteca de consulta con ' + Biblioteca.catalogo().length + ' obras clásicas de astrología: ' + Biblioteca.catalogo().map(function (o) { return o.autor + ', ' + o.titulo + ' (' + o.anio + ')'; }).join('; ') + '. Cuando cites un pasaje, nombra al autor y la obra, resume la idea en español con tus palabras y como mucho traduce una frase breve entre comillas. Los textos son antiguos: toma de ellos la técnica y adáptala con criterio a la vida de hoy; no repitas sus juicios fatalistas ni sus prejuicios de época, y nunca traslades sus indicaciones médicas (sangrías, purgas, remedios): eso se resuelve con un profesional de la salud.\n\n' : '') +
       'DATOS\nHoy es ' + A.fDia(new Date()) + ' (' + A.ymd(new Date()) + ') en ' + l.nombre + ', zona ' + l.zona + '. Las horas son siempre hora local de ese lugar.\n' +
       'Edad: ' + M.profeccion(c, e.nac, new Date()).edad + ' años. Adapta el lenguaje, los ejemplos y los temas a esa edad; si es menor de 18, habla de su mundo real (familia, amistades, estudio, intereses), con cuidado y sin temas adultos, y anímala a apoyarse en los adultos de confianza cuando algo le preocupe.\n' +
       'Nacimiento: ' + p.fecha + ' ' + p.hora + ' en ' + p.nac.nombre + '. Carta ' + (c.diurna ? 'diurna' : 'nocturna') + '.\n' +
@@ -104,7 +113,7 @@
   function conversar(hilo, alPaso) {
     var clave = A.leer('astro.clave', '');
     var cuerpo = { model: MODELO, max_tokens: 16000, thinking: { type: 'adaptive' }, output_config: { effort: 'medium' },
-      system: [{ type: 'text', text: hilo.sistema || (hilo.sistema = sistema()), cache_control: { type: 'ephemeral' } }], tools: HERRAMIENTAS, messages: hilo };
+      system: [{ type: 'text', text: hilo.sistema || (hilo.sistema = sistema()), cache_control: { type: 'ephemeral' } }], tools: hilo.herramientas || (hilo.herramientas = herramientas()), messages: hilo };
     // Las instrucciones quedan fijas durante toda la conversación: si cambian, el servicio rechaza continuarla.
     return llamar(clave, cuerpo, true).catch(function (e) {
       if (!/thinking/i.test(e.message) || hilo.sinPensar) throw e;
@@ -118,13 +127,16 @@
         var txt = res.content.filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('\n').trim();
         return txt + (res.stop_reason === 'max_tokens' ? '\n\n(La respuesta se cortó por longitud.)' : '');
       }
-      var resultados = res.content.filter(function (b) { return b.type === 'tool_use'; }).map(function (b) {
-        alPaso({ buscar_momentos: 'Buscando los mejores momentos…', evaluar_momento: 'Evaluando ese momento…', pronostico: 'Calculando tu pronóstico…', cielo: 'Mirando el cielo de esa fecha…' }[b.name] || 'Calculando…');
-        try { return { type: 'tool_result', tool_use_id: b.id, content: JSON.stringify(ejecutar(b.name, b.input || {})) }; }
-        catch (e) { return { type: 'tool_result', tool_use_id: b.id, content: 'Error: ' + e.message, is_error: true }; }
+      var usos = res.content.filter(function (b) { return b.type === 'tool_use'; });
+      return Promise.all(usos.map(function (b) {
+        alPaso({ buscar_momentos: 'Buscando los mejores momentos…', evaluar_momento: 'Evaluando ese momento…', pronostico: 'Calculando tu pronóstico…', cielo: 'Mirando el cielo de esa fecha…', consultar_biblioteca: 'Consultando los libros…' }[b.name] || 'Calculando…');
+        return Promise.resolve().then(function () { return ejecutar(b.name, b.input || {}); })
+          .then(function (r) { return { type: 'tool_result', tool_use_id: b.id, content: JSON.stringify(r) }; },
+                function (e) { return { type: 'tool_result', tool_use_id: b.id, content: 'Error: ' + e.message, is_error: true }; });
+      })).then(function (resultados) {
+        hilo.push({ role: 'user', content: resultados });
+        return conversar(hilo, alPaso);
       });
-      hilo.push({ role: 'user', content: resultados });
-      return new Promise(function (ok) { setTimeout(ok, 0); }).then(function () { return conversar(hilo, alPaso); });
     });
   }
 

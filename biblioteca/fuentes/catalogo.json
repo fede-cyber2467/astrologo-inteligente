@@ -1,0 +1,146 @@
+[
+ {
+  "id": "lilly-introduccion",
+  "titulo": "An Introduction to Astrology (Christian Astrology abreviado por Zadkiel)",
+  "autor": "William Lilly",
+  "anio": 1647,
+  "archivo": "lilly-introduccion.txt",
+  "url": "https://archive.org/download/introductiontoas00lill/introductiontoas00lill_djvu.txt"
+ },
+ {
+  "id": "ramesey-restaurata",
+  "titulo": "Astrologia Restaurata",
+  "autor": "William Ramesey",
+  "anio": 1653,
+  "archivo": "ramesey-restaurata.xml",
+  "url": "https://raw.githubusercontent.com/textcreationpartnership/A57689/master/A57689.xml"
+ },
+ {
+  "id": "bonatti-anima",
+  "titulo": "Anima Astrologiae (las consideraciones de Bonatti, edición de Lilly y Coley)",
+  "autor": "Guido Bonatti",
+  "anio": 1676,
+  "archivo": "bonatti-anima.xml",
+  "url": "https://raw.githubusercontent.com/textcreationpartnership/A48494/master/A48494.xml"
+ },
+ {
+  "id": "manilio-astronomica",
+  "titulo": "Astronomica (traducción de Thomas Creech)",
+  "autor": "Marco Manilio",
+  "anio": 1700,
+  "archivo": "manilio-astronomica.xml",
+  "url": "https://raw.githubusercontent.com/textcreationpartnership/A51767/master/A51767.xml"
+ },
+ {
+  "id": "ptolomeo-tetrabiblos",
+  "titulo": "Tetrabiblos (traducción de J. M. Ashmand)",
+  "autor": "Claudio Ptolomeo",
+  "anio": 1822,
+  "archivo": "ptolomeo-tetrabiblos.txt",
+  "url": "https://gutenberg.pglaf.org/7/0/8/5/70850/70850-0.txt"
+ },
+ {
+  "id": "robson-estrellas",
+  "titulo": "The Fixed Stars and Constellations in Astrology",
+  "autor": "Vivian E. Robson",
+  "anio": 1923,
+  "archivo": "robson-estrellas.txt",
+  "url": "https://archive.org/download/in.ernet.dli.2015.128091/2015.128091.The-Fixed-Stars-And-Constellations-In-Astrology_djvu.txt"
+ },
+ {
+  "id": "leo-para-todos",
+  "titulo": "Astrology for All",
+  "autor": "Alan Leo",
+  "anio": 1910,
+  "archivo": "leo-para-todos.txt",
+  "url": "https://archive.org/download/dli.ernet.19807/19807-Astrology%20For%20All_djvu.txt"
+ },
+ {
+  "id": "leo-juzgar-natividad",
+  "titulo": "How to Judge a Nativity",
+  "autor": "Alan Leo",
+  "anio": 1928,
+  "archivo": "leo-juzgar-natividad.txt",
+  "url": "https://archive.org/download/howtojudgenativi00leoa/howtojudgenativi00leoa_djvu.txt"
+ },
+ {
+  "id": "leo-sintesis",
+  "titulo": "The Art of Synthesis",
+  "autor": "Alan Leo",
+  "anio": 1926,
+  "archivo": "leo-sintesis.txt",
+  "url": "https://archive.org/download/artofsynthesis00leoa/artofsynthesis00leoa_djvu.txt"
+ },
+ {
+  "id": "leo-progresado",
+  "titulo": "The Progressed Horoscope",
+  "autor": "Alan Leo",
+  "anio": 1906,
+  "archivo": "leo-progresado.txt",
+  "url": "https://archive.org/download/bub_gb_OY7ZLx4jQmcC/bub_gb_OY7ZLx4jQmcC_djvu.txt"
+ },
+ {
+  "id": "sepharial-horoscopo",
+  "titulo": "Astrology: How to Make and Read Your Own Horoscope",
+  "autor": "Sepharial",
+  "anio": 1920,
+  "archivo": "sepharial-horoscopo.txt",
+  "url": "https://gutenberg.pglaf.org/4/6/9/6/46963/46963-0.txt"
+ },
+ {
+  "id": "raphael-horaria",
+  "titulo": "Raphael's Horary Astrology",
+  "autor": "Raphael",
+  "anio": 1917,
+  "archivo": "raphael-horaria.txt",
+  "url": "https://archive.org/download/raphaels-horary-astrology/Raphael%27s%20%20Horary%20Astrology_djvu.txt"
+ },
+ {
+  "id": "raphael-guia",
+  "titulo": "A Guide to Astrology",
+  "autor": "Raphael",
+  "anio": 1905,
+  "archivo": "raphael-guia.txt",
+  "url": "https://archive.org/download/guidetoastrology00raphiala/guidetoastrology00raphiala_djvu.txt"
+ },
+ {
+  "id": "heindel-mensaje",
+  "titulo": "The Message of the Stars",
+  "autor": "Max Heindel",
+  "anio": 1918,
+  "archivo": "heindel-mensaje.txt",
+  "url": "https://archive.org/download/messageofstarses00heiniala/messageofstarses00heiniala_djvu.txt"
+ },
+ {
+  "id": "heindel-simplificada",
+  "titulo": "Simplified Scientific Astrology",
+  "autor": "Max Heindel",
+  "anio": 1919,
+  "archivo": "heindel-simplificada.txt",
+  "url": "https://archive.org/download/simplifiedscient00heiniala/simplifiedscient00heiniala_djvu.txt"
+ },
+ {
+  "id": "adams-lugar-en-el-sol",
+  "titulo": "Astrology: Your Place in the Sun",
+  "autor": "Evangeline Adams",
+  "anio": 1927,
+  "archivo": "adams-lugar-en-el-sol.txt",
+  "url": "https://archive.org/download/astrologyyourpl00adam/astrologyyourpl00adam_djvu.txt"
+ },
+ {
+  "id": "pearce-ciencia",
+  "titulo": "The Science of the Stars",
+  "autor": "Alfred J. Pearce",
+  "anio": 1881,
+  "archivo": "pearce-ciencia.txt",
+  "url": "https://archive.org/download/b24884522/b24884522_djvu.txt"
+ },
+ {
+  "id": "zadkiel-manual",
+  "titulo": "The Hand-Book of Astrology",
+  "autor": "Zadkiel",
+  "anio": 1861,
+  "archivo": "zadkiel-manual.txt",
+  "url": "https://archive.org/download/handbookastrolo00zadkgoog/handbookastrolo00zadkgoog_djvu.txt"
+ }
+]

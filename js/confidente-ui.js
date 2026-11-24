@@ -57,7 +57,7 @@
     return null;
   }
 
-  function fmt(t) { return A.h(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+  function fmt(t) { return A.h(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[\s(«"])\*([^*\n]+?)\*/g, '$1<i>$2</i>'); }
   function montar(el) {
     var id = A.est.perfil.id + ':' + ((A.persona() || {}).id || ''), clave = A.leer('astro.clave', ''), activo = !!clave && A.leer('astro.ia', true) !== false, reg = registro[id] = registro[id] || [], hilo = C.hilos[id] = C.hilos[id] || [];
     el.innerHTML =
