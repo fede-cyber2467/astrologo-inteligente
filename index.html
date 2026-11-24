@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astrólogo Inteligente</title>
+<link rel="stylesheet" href="css/estilo.css?v=1795491289">
+</head>
+<body>
+<header class="barra">
+  <div class="marca"><span class="logo">✶</span> Astrólogo Inteligente</div>
+  <div class="perfil">
+    <select id="selPerfil" aria-label="Carta activa"></select>
+    <button id="btnEditar" class="sec">Editar</button>
+    <button id="btnNuevo" class="sec">+ Carta</button>
+  </div>
+</header>
+<nav class="tabs" id="tabs">
+  <button data-tab="inicio" class="on">Inicio</button>
+  <button data-tab="elegir">Elegir momento</button>
+  <button data-tab="carta">Mi carta</button>
+  <button data-tab="pronostico">Pronóstico</button>
+  <button data-tab="metodo">Cómo funciona</button>
+  <button data-tab="voces">Probar voces</button>
+</nav>
+<main>
+  <section id="vacio" class="tarjeta centro" hidden>
+    <h2>Empecemos por tu carta</h2>
+    <p>Carga tu fecha, hora y lugar de nacimiento. Todo queda guardado solo en este dispositivo.</p>
+    <button id="btnPrimera">Cargar mis datos</button>
+  </section>
+  <section id="tab-inicio" class="tab"></section>
+  <section id="tab-carta" class="tab" hidden></section>
+  <section id="tab-pronostico" class="tab" hidden></section>
+  <section id="tab-elegir" class="tab" hidden></section>
+  <section id="tab-metodo" class="tab" hidden></section>
+  <section id="tab-voces" class="tab" hidden></section>
+</main>
+
+<dialog id="dlgPerfil">
+  <form method="dialog" id="frmPerfil">
+    <h2>Datos de nacimiento</h2>
+    <label>Nombre <input id="pNombre" required placeholder="Cómo te llamas"></label>
+    <div class="fila">
+      <label>Fecha <input id="pFecha" type="date" required></label>
+      <label>Hora <input id="pHora" type="time" required value="12:00"></label>
+    </div>
+    <p class="nota">La hora exacta define el Ascendente y las casas. Si no la sabes, deja 12:00 y toma con pinzas todo lo que dependa de casas.</p>
+    <fieldset>
+      <legend>Lugar de nacimiento</legend>
+      <div class="fila"><input id="pNacBusca" placeholder="Ciudad (ej. Rosario)"><button type="button" class="sec" data-busca="Nac">Buscar</button></div>
+      <div class="resultados" id="pNacRes"></div>
+      <div class="fila tres">
+        <label>Latitud <input id="pNacLat" type="number" step="any" required></label>
+        <label>Longitud <input id="pNacLon" type="number" step="any" required></label>
+        <label>Zona horaria <input id="pNacZona" required placeholder="America/Argentina/Buenos_Aires"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Dónde vives ahora (para elegir momentos)</legend>
+      <label class="check"><input type="checkbox" id="pMismo" checked> El mismo lugar</label>
+      <div id="pActBloque" hidden>
+        <div class="fila"><input id="pActBusca" placeholder="Ciudad"><button type="button" class="sec" data-busca="Act">Buscar</button></div>
+        <div class="resultados" id="pActRes"></div>
+        <div class="fila tres">
+          <label>Latitud <input id="pActLat" type="number" step="any"></label>
+          <label>Longitud <input id="pActLon" type="number" step="any"></label>
+          <label>Zona horaria <input id="pActZona"></label>
+        </div>
+      </div>
+    </fieldset>
+    <p class="nota">La búsqueda de ciudades consulta el servicio gratuito Open-Meteo y le envía solo el nombre de la ciudad.</p>
+    <div class="acciones">
+      <button type="button" class="peligro" id="btnBorrar" hidden>Borrar carta</button>
+      <span class="flex"></span>
+      <button type="button" class="sec" id="btnCancelar">Cancelar</button>
+      <button type="submit">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="js/vendor/astronomy.browser.min.js?v=1795491289"></script>
+<script src="js/motor.js?v=1795491289"></script>
+<script src="js/reglas.js?v=1795491289"></script>
+<script src="js/textos.js?v=1795491289"></script>
+<script src="js/personas.js?v=1795491289"></script>
+<script src="js/app.js?v=1795491289"></script>
+<script src="js/confidente.js?v=1795491289"></script>
+<script src="js/confidente-ui.js?v=1795491289"></script>
+<script src="js/voces.js?v=1795491289"></script>
+</body>
+</html>
