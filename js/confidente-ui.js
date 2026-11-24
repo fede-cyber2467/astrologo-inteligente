@@ -7,6 +7,7 @@
 
   function plano(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
   var CLAVES = [
+    ['estudiar', /estudi|curso|carrera|clases|inscrib/], ['compraventa', /compr|vend/],
     ['contrato', /contrato|firm|acuerdo/], ['viaje', /viaj|vuelo|vacacion/], ['propuesta', /propon|propuesta|casar|casamiento|pareja|cita|declarar|novi/],
     ['negocio', /negocio|lanz|emprend|inaugur|abrir/], ['trabajo', /entrevista|trabajo|empleo|ascenso|aumento/], ['mudanza', /mud|alquil|departamento/],
     ['comunicar', /public|anunci|enviar|mandar/], ['creativo', /grab|cancion|disco|estren|arte|creativ|show/], ['cerrar', /termin|cerrar|renunci|soltar|cortar/],

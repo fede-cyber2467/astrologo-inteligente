@@ -13,12 +13,14 @@
     { id: 'viaje', n: 'Viaje', casas: [9, 3], sig: ['jupiter', 'mercurio'], mod: 'cardinal', desc: 'El momento que cuenta es cuando sales de tu casa.' },
     { id: 'propuesta', n: 'Propuesta, pareja o casamiento', casas: [7], sig: ['venus'], mod: 'fijo', desc: 'El momento es el de la pregunta o el "sí".' },
     { id: 'negocio', n: 'Abrir un negocio o lanzar un proyecto', casas: [10, 2], sig: ['jupiter', 'mercurio'], mod: 'fijo', desc: 'Apertura de puertas, publicación del lanzamiento o constitución.' },
-    { id: 'contrato', n: 'Firmar un contrato o acuerdo', casas: [7, 3], sig: ['mercurio'], retroFuerte: true, desc: 'El momento de la firma.' },
-    { id: 'trabajo', n: 'Entrevista o empezar un trabajo', casas: [10, 6], sig: ['sol', 'mercurio'], desc: 'Inicio de la entrevista o del primer día.' },
+    { id: 'contrato', n: 'Firmar un contrato o acuerdo', casas: [7, 3], sig: ['mercurio'], retroFuerte: true, mod: 'mutable', desc: 'El momento de la firma.' },
+    { id: 'trabajo', n: 'Entrevista o empezar un trabajo', casas: [10, 11], sig: ['sol', 'mercurio'], desc: 'Inicio de la entrevista o del primer día.' },
     { id: 'mudanza', n: 'Mudanza o tema de vivienda', casas: [4], sig: ['luna'], mod: 'fijo', desc: 'Entrar a la casa nueva o firmar por ella.' },
     { id: 'comunicar', n: 'Publicar, anunciar o enviar algo importante', casas: [3, 10], sig: ['mercurio'], desc: 'El instante de apretar "publicar" o "enviar".' },
-    { id: 'conversacion', n: 'Conversación importante o pedir algo', casas: [7, 3], sig: ['mercurio', 'venus'], desc: 'Cuando empieza la charla.' },
-    { id: 'creativo', n: 'Proyecto creativo o artístico', casas: [5], sig: ['venus', 'sol'], desc: 'Empezar a grabar, estrenar, mostrar.' },
+    { id: 'conversacion', n: 'Conversación importante o pedir algo', casas: [7, 11], sig: ['mercurio', 'venus'], desc: 'Cuando empieza la charla.' },
+    { id: 'creativo', n: 'Proyecto creativo o artístico', casas: [5], sig: ['venus', 'mercurio'], desc: 'Empezar a grabar, estrenar, mostrar.' },
+    { id: 'estudiar', n: 'Empezar a estudiar o un curso', casas: [9, 3], sig: ['mercurio'], mod: 'mutable', desc: 'La primera clase o el momento de inscribirte.' },
+    { id: 'compraventa', n: 'Comprar o vender algo importante', casas: [2, 7], sig: ['mercurio', 'jupiter'], comercio: true, desc: 'El momento de cerrar la operación.' },
     { id: 'cerrar', n: 'Cerrar, terminar o soltar algo', casas: [], sig: [], fase: 'menguante', desc: 'Para finales conviene Luna menguante.' }
   ];
   var ACC = {}; ACCIONES.forEach(function (a) { ACC[a.id] = a; });
@@ -39,10 +41,16 @@
       var p = pos[id], mal = id === 'marte' || id === 'saturno';
       var cerca = Math.min(M.sep(p.lon, c.asc), M.sep(p.lon, c.mc), M.sep(p.lon, c.asc + 180), M.sep(p.lon, c.mc + 180));
       if (mal) {
-        if (esAng(p.casa)) f(id === malContra ? -12 : -3, P[id].n + (id === malContra ? ' (maléfico contrario a la secta)' : '') + ' en casa angular ' + p.casa);
+        if (esAng(p.casa)) {
+          var aj = M.aspectoEntre(p.lon, pos.jupiter.lon, 6), frenado = p.dignidad === 'domicilio' || p.dignidad === 'exaltacion' || (aj && aj.asp.tipo === 'armonico');
+          f((id === malContra ? -12 : -6) * (frenado ? 0.5 : 1), P[id].n + (id === malContra ? ' (maléfico contrario a la secta)' : ' (maléfico)') + ' en casa angular ' + p.casa + (frenado ? ', refrenado por su dignidad o por Júpiter' : ''));
+        }
         if (cerca <= 5) f(-8, P[id].n + ' a ' + gr(cerca) + '° de un ángulo');
       } else {
-        if (esAng(p.casa)) f(id === benSecta ? 8 : 6, P[id].n + ' (benéfico) en casa angular ' + p.casa);
+        if (esAng(p.casa)) {
+          var debil = p.retro || p.dignidad === 'exilio' || p.dignidad === 'caida' || M.sep(p.lon, sol) <= 8.5;
+          f(debil ? 2 : (id === benSecta ? 8 : 6), P[id].n + ' (benéfico) en casa angular ' + p.casa + (debil ? ', pero debilitado' : ''));
+        }
         if (cerca <= 5) f(4, P[id].n + ' a ' + gr(cerca) + '° de un ángulo');
       }
     });
@@ -52,7 +60,7 @@
     if (CASAS_BUENAS[pr.casa]) f(CASAS_BUENAS[pr.casa], nR + ' en casa ' + pr.casa);
     else f(-10, nR + ' en casa ' + pr.casa + ' (sin vínculo con el Ascendente)');
     if (pr.dignidad) f({ domicilio: 7, exaltacion: 5, exilio: -5, caida: -5 }[pr.dignidad], nR + ' ' + N_DIG[pr.dignidad]);
-    if (pr.retro && R !== 'sol' && R !== 'luna') f(-6, nR + ' retrógrado');
+    if (pr.retro && R !== 'sol' && R !== 'luna') f(-10, nR + ' retrógrado');
     if (R !== 'sol' && R !== 'luna') {
       var ds = M.sep(pr.lon, sol);
       if (ds <= 0.28) f(4, nR + ' en el corazón del Sol (cazimi)');
@@ -84,18 +92,32 @@
     var quiereMeng = acc.fase === 'menguante';
     if (el.creciente) f(quiereMeng ? -4 : 4, 'Luna creciente (' + Math.round(el.iluminacion * 100) + '% iluminada)');
     else f(quiereMeng ? 4 : -3, 'Luna menguante (' + Math.round(el.iluminacion * 100) + '% iluminada)');
-    if (el.distSol <= 8.5) f(-10, 'Luna combusta, pegada al Sol');
-    else if (el.distSol <= 17) f(-5, 'Luna bajo los rayos del Sol');
-    if (el.viaCombusta) f(-3, 'Luna en vía combusta (15° Libra a 15° Escorpio)');
+    // Ramesey y Bonatti: peor cuando la Luna va hacia el Sol (menguante) que cuando ya se aleja
+    if (!el.creciente && el.distSol <= 15) f(-10, 'Luna combusta, yendo hacia el Sol');
+    else if (el.creciente && el.distSol <= 5) f(-8, 'Luna combusta, recién saliendo del Sol');
+    else if (el.distSol <= 12) f(-3, 'Luna bajo los rayos del Sol');
+    if (el.viaCombusta) f(acc.id === 'propuesta' || acc.id === 'viaje' || acc.comercio ? -8 : -4, 'Luna en vía combusta (15° Libra a 15° Escorpio)');
     if (M.gradoEnSigno(L.lon) >= 27) f(-2, 'Luna en los últimos grados del signo');
     var dn = Math.min(M.sep(L.lon, pos.nodo.lon), M.sep(L.lon, pos.nodo.lon + 180));
-    if (dn <= 5) f(-4, 'Luna junto a los nodos');
+    var cola = M.sep(L.lon, pos.nodo.lon + 180);
+    if (cola <= 5) f(-5, 'Luna junto al Nodo Sur');
+    else if (cola <= 12) f(-2, 'Luna cerca del Nodo Sur');
+    else if (dn <= 5) f(-2, 'Luna junto al Nodo Norte');
+    if (L.vel < 12.4) f(-3, 'Luna lenta (avanza menos que su promedio)');
+    if (L.casa === 1 && !acc.comercio) f(-4, 'Luna en el Ascendente');
+    var lum = M.aspectoEntre(L.lon, sol, 6);
+    if (lum && lum.asp.tipo === 'armonico') f(3, 'Sol y Luna en ' + lum.asp.n);
+    // Ramesey y Lilly: la casa 4 y su regente muestran el final del asunto
+    var r4 = pos[c.regenteCasa(4)];
+    if (r4.dignidad === 'domicilio' || r4.dignidad === 'exaltacion') f(3, 'El regente de la casa 4 (el final del asunto) está fuerte');
+    else if (r4.dignidad === 'exilio' || r4.dignidad === 'caida' || (r4.retro && c.regenteCasa(4) !== 'sol' && c.regenteCasa(4) !== 'luna')) f(-3, 'El regente de la casa 4 (el final del asunto) está débil');
+    if (acc.comercio) ['luna', 'mercurio'].forEach(function (id) { var am = M.aspectoEntre(pos.marte.lon, pos[id].lon, 5); if (am) f(-4, 'Marte en ' + am.asp.n + ' con ' + P[id].n + ': discusiones en la operación'); });
     var disp = S[L.signo].reg;
     if (disp !== 'luna' && (pos[disp].casa === 8 || pos[disp].casa === 12)) f(-4, 'El regente de la Luna (' + P[disp].n + ') cae en casa ' + pos[disp].casa + ': final flojo');
 
     // 4. Casa del tema
     (acc.casas || []).forEach(function (n, i) {
-      var w = i === 0 ? 1 : 0.5, rg = c.regenteCasa(n), pg = pos[rg], nr = P[rg].n + ', regente de la casa ' + n + ' (tema),';
+      var w = i === 0 ? 1.4 : 0.7, rg = c.regenteCasa(n), pg = pos[rg], nr = P[rg].n + ', regente de la casa ' + n + ' (tema),';
       if (pg.dignidad) f({ domicilio: 5, exaltacion: 4, exilio: -4, caida: -4 }[pg.dignidad] * w, nr + ' ' + N_DIG[pg.dignidad]);
       if (pg.casa === 6 || pg.casa === 8 || pg.casa === 12) f(-4 * w, nr + ' en casa ' + pg.casa);
       else if (esAng(pg.casa)) f(3 * w, nr + ' en casa angular');
@@ -107,7 +129,7 @@
 
     // 5. Significadores naturales
     (acc.sig || []).forEach(function (id, i) {
-      var w = i === 0 ? 1 : 0.6, p = pos[id], ns = P[id].n + ' (significador)';
+      var w = i === 0 ? 1.4 : 0.8, p = pos[id], ns = P[id].n + ' (significador)';
       if (p.retro && id !== 'sol' && id !== 'luna') f((acc.retroFuerte ? -12 : -8) * w, ns + ' retrógrado');
       if (p.dignidad) f({ domicilio: 4, exaltacion: 4, exilio: -3, caida: -3 }[p.dignidad] * w, ns + ' ' + N_DIG[p.dignidad]);
       if (id !== 'sol' && id !== 'luna' && M.sep(p.lon, sol) <= 8.5 && M.sep(p.lon, sol) > 0.28) f(-5 * w, ns + ' combusto');
@@ -115,6 +137,9 @@
 
     // 6. Modalidad del Ascendente
     if (acc.mod && S[c.signoAsc].mod === acc.mod) f(3, 'Ascendente en signo ' + acc.mod + ' (' + S[c.signoAsc].n + '), acorde al objetivo');
+    if (acc.mod && S[L.signo].mod === acc.mod) f(3, 'Luna en signo ' + acc.mod + ', acorde al objetivo');
+    if (acc.id === 'viaje' && S[c.signoAsc].mod === 'fijo') f(-3, 'Ascendente en signo fijo: poco propicio para viajar');
+    if (acc.id === 'propuesta' && S[L.signo].mod === 'cardinal') f(-3, 'Luna en signo cardinal: poco propicia para lo que debe durar');
 
     // 7. Hora planetaria
     var hp = M.horaPlanetaria(date, lat, lon, cache);
@@ -141,7 +166,7 @@
       if (cl === 6 || cl === 8 || cl === 12) f(-2, 'La Luna transita tu casa ' + cl + ' natal');
     }
 
-    var puntaje = Math.max(1, Math.min(99, Math.round(55 + suma)));
+    var puntaje = Math.max(1, Math.min(99, Math.round(63 + suma)));
     F.sort(function (a, b) { return Math.abs(b.pts) - Math.abs(a.pts); });
     return { fecha: date, puntaje: puntaje, factores: F, carta: c, luna: el, hora: hp };
   }
@@ -244,7 +269,8 @@
 
   /* ---------- Clima por áreas de vida: de qué "es" un día, una semana o un mes ---------- */
   var PT_CASA = { venus: 7, luna: 4, sol: 1, mercurio: 3, marte: 6, jupiter: 9, saturno: 10, asc: 1, mc: 10 };
-  var W_CASA = { sol: [2, 1], mercurio: [1.5, 0.5], venus: [3, 2], marte: [2, -0.7], jupiter: [2, 2.5], saturno: [1.5, -1.5] };
+  // Leo: en tránsito pesan Saturno y Júpiter; Venus y Mercurio apenas, salvo que rijan la carta o el año; Marte, sobre todo en los ángulos
+  var W_CASA = { sol: [2, 1], mercurio: [1, 0.4], venus: [1.8, 1.5], marte: [2, -0.7], jupiter: [2.2, 2.5], saturno: [1.8, -1.2] };
   /* Cada período mira su propia escala: el día, la Luna y lo exacto de hoy; la semana, los planetas rápidos;
      el mes, las lunaciones y por dónde andan Sol, Venus y Marte. Lo lento (meses) queda como fondo. */
   var ESCALA = {
@@ -257,8 +283,14 @@
     for (i = 0; i <= 12; i++) A.push({ casa: i, foco: 0, tono: 0, motivos: [] });
     function add(casa, foco, tono, txt) { var a = A[casa]; a.foco += foco; a.tono += tono; a.motivos.push({ txt: txt, tono: tono, foco: foco }); }
     var medio = new Date((+desde + +hasta) / 2), pos = M.posiciones(medio, ['sol', 'luna', 'mercurio', 'venus', 'marte', 'jupiter', 'saturno']);
+    // planetas que mandan en esta carta este año: el regente del Ascendente y el señor del año (Ptolomeo, Leo)
+    var senor = M.profeccion(natal, natal.fecha, desde).senor;
+    function manda(id) { return id === senor || id === natal.regenteAsc ? 1.6 : 1; }
+    // Leo: un planeta tocado actúa por la casa natal que ocupa, además de su tema natural
+    function casasDe(punto) { var nat = punto === 'asc' ? 1 : punto === 'mc' ? 10 : natal.pos[punto].casa, tema = PT_CASA[punto]; return nat === tema ? [[nat, 1]] : [[nat, 0.6], [tema, 0.4]]; }
     Object.keys(W_CASA).forEach(function (id) {
-      var c = natal.casaDe(pos[id].lon), w = W_CASA[id], lento = id === 'jupiter' || id === 'saturno', k = E.casas * (lento && E !== ESCALA.mes ? 0.5 : 1);
+      var c = natal.casaDe(pos[id].lon), w = W_CASA[id], lento = id === 'jupiter' || id === 'saturno', k = E.casas * (lento && E !== ESCALA.mes ? 0.5 : 1) * manda(id);
+      if (id === 'marte' && !esAng(c)) k *= 0.5;
       add(c, w[0] * k, (pos[id].retro && w[1] > 0 ? w[1] / 2 : w[1]) * k, P[id].n + (pos[id].retro ? ' retrógrado' : '') + ' transita tu casa ' + c + ' (' + S[M.signoDe(pos[id].lon)].n + ')');
     });
     var lunaCasa = null;
@@ -269,17 +301,22 @@
         var a = M.aspectoEntre(pos.luna.lon, pt.lon, 6); if (!a || a.asp.id === 'sext') return;
         var ben = pt.id === 'venus' || pt.id === 'jupiter', mal = pt.id === 'marte' || pt.id === 'saturno';
         var t = a.asp.tipo === 'armonico' ? 1 : a.asp.tipo === 'tenso' ? (ben ? -0.3 : -1) : (ben ? 1.2 : mal ? -1 : 0.5);
-        add(PT_CASA[pt.id], 2.2, t, 'La Luna de hoy en ' + a.asp.n + ' con tu ' + pt.n + ' natal');
+        casasDe(pt.id).forEach(function (x) { add(x[0], 2.2 * x[1], t * x[1], 'La Luna de hoy en ' + a.asp.n + ' con tu ' + pt.n + ' natal'); });
       });
     }
     M.transitos(natal, desde, hasta, M.RAPIDOS.concat(M.LENTOS), 1).forEach(function (t) {
       var lento = M.LENTOS.indexOf(t.planeta) >= 0;
       if (!lento && !t.exactos.length) return;
-      var k = lento ? E.lento : E.rapido;
-      add(PT_CASA[t.punto], PESO[t.planeta] * k, tonoTransito(t) * k, P[t.planeta].n + ' en ' + t.asp.n + ' con tu ' + t.nPunto + ' natal' + (lento ? ' (proceso de fondo)' : ''));
+      var clave = t.punto === 'sol' || t.punto === 'luna' || t.punto === 'asc' || t.punto === 'mc';
+      var k = (lento ? E.lento : E.rapido) * manda(t.planeta) * (t.punto === senor ? 1.6 : 1);
+      if ((t.planeta === 'saturno' || t.planeta === 'jupiter') && clave) k *= 2;      // lo que Leo considera decisivo
+      if (t.planeta === 'marte' && !clave) k *= 0.5;
+      if ((t.planeta === 'venus' || t.planeta === 'mercurio') && manda(t.planeta) === 1) k *= 0.6;
+      casasDe(t.punto).forEach(function (x) { add(x[0], PESO[t.planeta] * k * x[1], tonoTransito(t) * k * x[1], P[t.planeta].n + ' en ' + t.asp.n + ' con tu ' + t.nPunto + ' natal' + (lento ? ' (proceso de fondo)' : '')); });
     });
     if (E.lunacion) conCasa(natal, M.lunaciones(desde, hasta)).forEach(function (e) {
-      add(e.casa, E.lunacion, e.tipo.indexOf('nueva') >= 0 ? 1 : 0.5, e.tipo + ' en tu casa ' + e.casa + ' (' + M.fmtLon(e.lon) + ')');
+      var toca = e.toca.length ? 1.5 : 0.7; // la lunación dispara un tema; pesa de verdad si toca un punto de la carta
+      add(e.casa, E.lunacion * toca, e.tipo.indexOf('nueva') >= 0 ? 1 : 0.5, e.tipo + ' en tu casa ' + e.casa + ' (' + M.fmtLon(e.lon) + ')' + (e.toca.length ? ', sobre tu ' + e.toca[0].punto + ' natal' : ''));
     });
     var areas = A.slice(1), total = 0;
     areas.forEach(function (a) { total += a.tono; a.motivos.sort(function (x, y) { return y.foco - x.foco; }); });

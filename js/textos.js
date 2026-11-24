@@ -16,7 +16,7 @@
   };
   var ACCION = {
     sol: 'ilumina y pone en primer plano', mercurio: 'activa conversaciones y decisiones sobre', venus: 'suaviza y trae disfrute a',
-    marte: 'empuja y acelera', jupiter: 'expande y abre puertas en', saturno: 'pone a prueba y ordena',
+    marte: 'empuja y acelera', jupiter: 'da confianza y abre oportunidades en', saturno: 'pone a prueba y ordena',
     urano: 'sacude y libera', neptuno: 'sensibiliza y desdibuja', pluton: 'intensifica y transforma', luna: 'mueve emocionalmente'
   };
   var CASA = [null,
@@ -39,13 +39,29 @@
   function nom(id) { return id === 'asc' ? 'Ascendente' : id === 'mc' ? 'Medio Cielo' : id === 'nodo' ? 'Nodo Norte' : P[id].n; }
   function pos(c, id) { return id === 'asc' ? { lon: c.asc } : id === 'mc' ? { lon: c.mc } : c.pos[id]; }
 
+  /* Planetas en casas, según Alan Leo (How to Judge a Nativity), reformulados para hoy y sin sus augurios de época */
+  var EN_CASA = {
+    'saturno:1': 'Te tomas la vida en serio y avanzas despacio pero firme; a veces te frenas por exceso de cautela.',
+    'jupiter:1': 'Tu optimismo y tu generosidad te abren camino; la gente te recibe bien y eso suele jugar a tu favor.',
+    'luna:2': 'Tus ingresos suben y bajan por etapas; se te da bien sacar mucho de poco y lo que tiene que ver con el público.',
+    'saturno:2': 'El dinero llega lento, por constancia y ahorro, no de golpe; lo que juntas, lo cuidas.',
+    'luna:4': 'Mucho apego al hogar, con mudanzas o cambios en la vida familiar; la casa te ocupa y te preocupa.',
+    'venus:5': 'Disfrutas con facilidad; buena estrella en el amor y en lo creativo, con tendencia a pasarte en los placeres.',
+    'marte:6': 'Pones mucha energía en el trabajo diario; cuida el exceso de carga y los roces con quienes trabajan contigo.',
+    'venus:7': 'La pareja y las asociaciones tienden a hacerte bien: tu vida mejora de a dos.',
+    'saturno:7': 'Los compromisos llegan tarde o cuestan, pero duran; buscas lealtad más que demostraciones.',
+    'marte:7': 'Relaciones intensas y decisiones rápidas en pareja; conviene aprender a discutir sin romper.',
+    'sol:10': 'Buscas un lugar visible y de responsabilidad; el reconocimiento suele llegar hacia la mitad de la vida.',
+    'saturno:10': 'Mucha ambición y ascenso por esfuerzo propio; lo logrado se sostiene si no te extralimitas.'
+  };
+
   /** Lectura de la carta natal en secciones. */
   function lecturaNatal(c) {
     var out = [], s = c.pos.sol, l = c.pos.luna;
     out.push({ t: 'Tu tríada', p: [
       '☉ Sol en ' + S[s.signo].n + ', casa ' + s.casa + '. Tu identidad se expresa de manera ' + ESTILO[s.signo] + ', y brilla sobre todo en ' + CASA[s.casa] + '.',
       '☽ Luna en ' + S[l.signo].n + ', casa ' + l.casa + '. Tu naturaleza emocional es ' + ESTILO[l.signo] + '; te sientes en casa cuando atiendes ' + CASA[l.casa] + '.',
-      'Ascendente en ' + S[c.signoAsc].n + ' (' + M.fmtLon(c.asc) + '). Encaras la vida de forma ' + ESTILO[c.signoAsc] + '. Es el aprendizaje que la vida te pide una y otra vez.'
+      'Ascendente en ' + S[c.signoAsc].n + ' (' + M.fmtLon(c.asc) + '). Encaras la vida de forma ' + ESTILO[c.signoAsc] + '. Es tu punto de partida: el temperamento con el que llegaste y lo primero que se ve de ti.'
     ] });
     var R = c.regenteAsc, r = c.pos[R];
     out.push({ t: 'El regente de tu carta', p: [
@@ -67,6 +83,11 @@
       'Predomina el ' + maxE[0] + ' (' + el[maxE[0]] + ' de 8 factores): ' + desc[maxE[0]] + ' te salen naturalmente. ' +
       (el[minE] <= 1 ? 'Tienes poco ' + minE + ' (' + el[minE] + '): ' + desc[minE] + ' es lo que te toca cultivar a conciencia.' : 'El reparto es bastante parejo.')
     ] });
+    var maxM = Object.keys(mo).sort(function (a, b) { return mo[b] - mo[a]; })[0];
+    var descM = { cardinal: 'tiendes a iniciar y a mover las cosas', fijo: 'tiendes a sostener y a llevar las cosas hasta el final', mutable: 'tiendes a adaptarte y a tender puentes' };
+    out[out.length - 1].p.push('En el modo de actuar predomina lo ' + maxM + ' (' + mo[maxM] + ' de 8): ' + descM[maxM] + '.');
+    var enCasa = M.CLASICOS.filter(function (id) { return EN_CASA[id + ':' + c.pos[id].casa]; }).map(function (id) { return P[id].n + ' en tu casa ' + c.pos[id].casa + '. ' + EN_CASA[id + ':' + c.pos[id].casa]; });
+    if (enCasa.length) out.push({ t: 'Posiciones que marcan tu carta', p: enCasa });
     var dig = M.CLASICOS.filter(function (id) { return c.pos[id].dignidad; }).map(function (id) { return P[id].n + ' en ' + S[c.pos[id].signo].n + ' ' + DIGN[c.pos[id].dignidad] + ' (' + TEMA[id] + ').'; });
     if (dig.length) out.push({ t: 'Planetas con dignidad o debilidad', p: dig });
     var asp = M.aspectosNatales(c).slice(0, 8).map(function (a) {
@@ -76,8 +97,21 @@
     return out;
   }
 
+  /* Tránsitos decisivos según Alan Leo (The Progressed Horoscope), reformulados para hoy */
+  var DECISIVO = {
+    'jupiter:sol': 'Alrededor de un mes de oportunidades que no aparecen en otro momento: más ganas y más confianza. Rinde si actúas; solo no llega.',
+    'jupiter:luna': 'Mejor ánimo y buena recepción de los demás; saca lo mejor de lo que ya tienes.',
+    'jupiter:asc': 'Más energía y ocasiones para mostrar lo que sabes hacer.',
+    'jupiter:venus': 'Buen momento para vínculos, vida social y dinero; cuida no gastar ni prometer de más.',
+    'saturno:sol': 'Etapa exigente, con más peso y menos energía. Tiene dos caras: cansa, y a la vez sirve para ordenar y sostener. No es para arriesgar.',
+    'saturno:luna': 'Ánimo más bajo y sensación de carga; lo que armes en este tiempo tiende a volverse costumbre, así que elige bien qué armas.',
+    'saturno:asc': 'Más responsabilidades y menos resto físico: pide paciencia y cuidarte. Lo que construyas ahora dura.',
+    'saturno:venus': 'Los afectos y el dinero se ponen a prueba; lo que resiste queda más firme.'
+  };
   function fraseTransito(t) {
-    return P[t.planeta].n + ' en ' + t.asp.n + ' con tu ' + t.nPunto + ' natal: ' + ACCION[t.planeta] + ' ' + TEMA[t.punto] + '. ' + CONSEJO[t.asp.tipo];
+    var d = DECISIVO[t.planeta + ':' + t.punto], base = P[t.planeta].n + ' en ' + t.asp.n + ' con tu ' + t.nPunto + ' natal: ';
+    if (d && ((t.planeta === 'jupiter' && t.asp.tipo !== 'tenso') || (t.planeta === 'saturno' && t.asp.tipo !== 'armonico'))) return base + d;
+    return base + ACCION[t.planeta] + ' ' + TEMA[t.punto] + '. ' + CONSEJO[t.asp.tipo];
   }
   function fraseLunacion(e) {
     var base = e.tipo.indexOf('nueva') >= 0 || e.tipo.indexOf('solar') >= 0
@@ -147,7 +181,13 @@
   /** Traduce un factor técnico a una frase que entiende cualquiera (o null si no vale la pena). */
   function llano(f) {
     var t = f.txt, pos = f.pts > 0, m;
-    if (/maléfico contrario/.test(t)) return /^Marte/.test(t) ? 'Marte está muy protagonista: riesgo de roces y apuro' : 'Saturno está muy protagonista: riesgo de demoras y trabas';
+    if (/final del asunto/.test(t)) return pos ? 'Buen pronóstico para cómo termina el asunto' : 'El cierre del asunto puede complicarse';
+    if (/Luna lenta/.test(t)) return 'La Luna va lenta: las cosas tardan';
+    if (/Nodo Sur/.test(t)) return 'Un punto sensible del cielo le quita fuerza a la Luna';
+    if (/Sol y Luna en/.test(t)) return 'El Sol y la Luna se llevan bien: todo fluye mejor';
+    if (/discusiones en la operación/.test(t)) return 'Riesgo de discusiones al negociar';
+    if (/pero debilitado/.test(t)) return null;
+    if (/\(maléfico/.test(t)) return /^Marte/.test(t) ? 'Marte está muy protagonista: riesgo de roces y apuro' : 'Saturno está muy protagonista: riesgo de demoras y trabas';
     if (/\(benéfico\) en casa angular/.test(t)) return /^Júpiter/.test(t) ? 'Júpiter está protagonista: viento a favor y buena fe' : 'Venus está protagonista: clima amable y atractivo';
     if ((m = /La Luna aplica por (\S+) a (\S+)/.exec(t))) {
       if (m[2] === 'Venus') return 'La Luna va hacia Venus: buena recepción y afecto';
