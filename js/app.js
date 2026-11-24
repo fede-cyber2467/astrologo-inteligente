@@ -324,6 +324,7 @@
       '<li><b>Horas planetarias</b> como detalle menor (Lilly, Warnock).</li></ul>' +
       '<p>El puntaje compara momentos entre sí dentro del rango que pides: no existe la carta perfecta, se elige la mejor disponible.</p></div>' +
       '<div class="tarjeta"><h2>Cómo arma el pronóstico</h2><p><b>Año</b>: profección anual y señor del año (técnica helenística recuperada por Brennan y Demetra George), tránsitos de Júpiter a Plutón con orbe de 1° como los trabaja Robert Hand, y eclipses por casa. <b>Mes</b>: lunaciones por casa natal, cambios de dirección y tránsitos de Sol, Mercurio, Venus y Marte. <b>Semana</b>: la Luna por tus casas y los tránsitos exactos de cada día. La lectura de la carta combina la mirada tradicional (secta, regente del Ascendente, dignidades) con la psicológica de Liz Greene y Howard Sasportas.</p></div>' +
+      '<div class="tarjeta"><h2>Créditos</h2><p class="suave">Cálculo astronómico: astronomy-engine, de Don Cross (licencia MIT). Ciudades y husos horarios: GeoNames (geonames.org), licencia Creative Commons Atribución 4.0.</p></div>' +
       '<div class="tarjeta"><h2>Lo que todavía no hace</h2><p>No calcula revolución solar, progresiones, arcos solares ni liberación zodiacal, y no ofrece casas Placidus ni otras definiciones de Luna vacía. Varias reglas atribuidas a Vivian Robson y Doroteo vienen de fuentes secundarias y conviene cotejarlas con los libros.</p>' +
       '<p class="suave">La astrología es una tradición simbólica, no una ciencia predictiva: usala como una herramienta de reflexión y de elección de momentos, no como garantía de resultados. Para decisiones de salud, legales o de dinero, consulta con profesionales.</p></div>';
   }
@@ -363,20 +364,41 @@
     $('#pMismo').checked = mismo; $('#pActBloque').hidden = mismo; $('#btnBorrar').hidden = !p;
     $('#dlgPerfil').showModal();
   }
+  /* Buscador de ciudades propio: la lista (GeoNames, CC BY 4.0) viaja con la app y se carga recién al buscar */
+  var ciudades = null, nombrePais = null;
+  function sinAcentos(t) { return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function cargarCiudades() {
+    if (!ciudades) ciudades = fetch('datos/ciudades.json').then(function (r) { if (!r.ok) throw new Error('sin datos'); return r.json(); }).then(function (d) {
+      d.c.forEach(function (c) { c.b = sinAcentos(c[0]); });
+      return d;
+    }).catch(function (e) { ciudades = null; throw e; });
+    return ciudades;
+  }
+  function pais(cc) {
+    try { nombrePais = nombrePais || new Intl.DisplayNames(['es'], { type: 'region' }); return nombrePais.of(cc); } catch (e) { return cc; }
+  }
   function buscarCiudad(k) {
-    var q = $('#p' + k + 'Busca').value.trim(), res = $('#p' + k + 'Res');
+    var q = sinAcentos($('#p' + k + 'Busca').value.trim().split(',')[0]), res = $('#p' + k + 'Res');
     if (q.length < 2) return;
     res.textContent = 'Buscando…';
-    fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=es&format=json&name=' + encodeURIComponent(q)).then(function (r) { return r.json(); }).then(function (j) {
+    cargarCiudades().then(function (d) {
+      // primero las que empiezan con lo escrito, después las que lo contienen; la lista ya viene ordenada por población
+      var empieza = [], contiene = [];
+      for (var i = 0; i < d.c.length && empieza.length < 8; i++) {
+        var c = d.c[i], pos = c.b.indexOf(q);
+        if (pos === 0 || (c[6] && ('|' + c[6]).indexOf('|' + q) >= 0)) empieza.push(c);
+        else if (pos > 0 && contiene.length < 8) contiene.push(c);
+      }
+      var lista = empieza.concat(contiene).slice(0, 8);
       res.innerHTML = '';
-      (j.results || []).forEach(function (c) {
+      lista.forEach(function (c) {
         var b = document.createElement('button'); b.type = 'button';
-        b.textContent = [c.name, c.admin1, c.country].filter(Boolean).join(', ');
-        b.onclick = function () { $('#p' + k + 'Busca').value = b.textContent; $('#p' + k + 'Lat').value = c.latitude; $('#p' + k + 'Lon').value = c.longitude; $('#p' + k + 'Zona').value = c.timezone; res.innerHTML = ''; };
+        b.textContent = [c[0], d.a[c[1]], pais(c[2])].filter(Boolean).join(', ');
+        b.onclick = function () { $('#p' + k + 'Busca').value = b.textContent; $('#p' + k + 'Lat').value = c[3]; $('#p' + k + 'Lon').value = c[4]; $('#p' + k + 'Zona').value = d.z[c[5]]; res.innerHTML = ''; };
         res.appendChild(b);
       });
-      if (!res.children.length) res.textContent = 'No encontré esa ciudad. Prueba con otro nombre o carga las coordenadas a mano.';
-    }).catch(function () { res.textContent = 'No pude conectar con el buscador. Carga latitud, longitud y zona horaria a mano.'; });
+      if (!lista.length) res.textContent = 'No encontré esa ciudad. Prueba con la ciudad más cercana o carga las coordenadas a mano.';
+    }).catch(function () { res.textContent = 'No pude cargar la lista de ciudades. Carga latitud, longitud y zona horaria a mano.'; });
   }
   function leerLugar(k) {
     var zona = $('#p' + k + 'Zona').value.trim(), lat = parseFloat($('#p' + k + 'Lat').value), lon = parseFloat($('#p' + k + 'Lon').value);
