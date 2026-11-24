@@ -169,3 +169,6 @@ img.retrato { object-fit: cover; border: 2px solid rgba(230, 193, 106, .55); }
 
 .mapa { height: 300px; border-radius: 12px; border: 1px solid var(--borde); margin: 0 0 8px; overflow: hidden; background: var(--panel2); z-index: 0; }
 .mapa .leaflet-control-attribution { font-size: 10px; }
+
+.mic.activo { border-color: var(--oro); color: var(--oro); }
+.mic:disabled { opacity: .55; }

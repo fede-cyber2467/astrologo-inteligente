@@ -77,17 +77,18 @@
         : '<details><summary>Tengo una clave o una invitación</summary><p class="nota">Para encenderlo sin cuenta hace falta una clave de API de Claude (se crea en platform.claude.com y se paga por uso). Queda guardada solo en este navegador y viaja únicamente a Anthropic, junto con tu carta y tus mensajes.</p>' +
           '<div class="fila"><input id="cClave" type="password" autocomplete="off" placeholder="Clave sk-ant-… o mensaje de invitación"><button type="button" id="cGuardar">Encender</button></div></details>') + '</div>';
     var chat = el.querySelector('#cChat'), txtEl = el.querySelector('#cTxt'), btn = el.querySelector('#cEnviar');
-    var porVoz = false;
+    var porVoz = false, conversando = false, finVoz = null;
     el.classList.add('czona'); el.classList.toggle('conversando', reg.length > 0);
     if (reg.length) txtEl.placeholder = 'Sigue la conversación…';
     function hablable(d) { var c = d.cloneNode(true); c.querySelectorAll('details, .oir, .chip, .suave').forEach(function (x) { x.remove(); }); return c.textContent; }
     function burbuja(cls, html, guardar) { var d = document.createElement('div'); d.className = 'msj ' + cls; d.innerHTML = html; chat.appendChild(d); if (guardar !== false) reg.push([cls, html]);
       if (/^ia/.test(cls) && A.persona() && (window.speechSynthesis || (window.Voces && Voces.disponible()))) {
         var o = document.createElement('button'); o.type = 'button'; o.className = 'oir'; o.textContent = 'Escuchar';
-        o.onclick = function () {
+        o.onclick = function (ev) {
+          if (ev && ev.isTrusted) { finVoz = null; conversando = false; var mm = el.querySelector('#cMic'); if (mm) mm.classList.remove('activo'); if (window.Voces) Voces.desbloquear(); }
           if (o.dataset.estado === 'sonando') { Personas.callar(); return; }
           if (o.dataset.estado === 'cargando') return;
-          function soltar() { o.disabled = false; o.dataset.estado = ''; o.textContent = 'Escuchar'; }
+          function soltar() { o.disabled = false; o.dataset.estado = ''; o.textContent = 'Escuchar'; if (finVoz) { var f = finVoz; finVoz = null; f(); } }
           o.disabled = true; o.dataset.estado = 'cargando'; o.innerHTML = '<span class="girando"></span>Preparando la voz…';
           Personas.hablar(A.persona(), hablable(d), soltar).then(function () { if (o.dataset.estado === 'cargando') { o.disabled = false; o.dataset.estado = 'sonando'; o.textContent = 'Detener'; } }, soltar);
         };
@@ -97,10 +98,10 @@
     reg.slice().forEach(function (b) { burbuja(b[0], b[1], false); });
     function enviar(txt) {
       txt = txt.trim(); if (!txt || btn.disabled) return;
-      txtEl.value = ''; btn.disabled = true; el.classList.add('conversando');
+      txtEl.value = ''; btn.disabled = true; el.querySelector('#cMic').disabled = true; el.classList.add('conversando');
       burbuja('yo', A.h(txt));
       var est = burbuja('sis', 'Mirando tu cielo…', false);
-      function listo(cls, html) { est.remove(); var b = burbuja(cls, html); btn.disabled = false; txtEl.placeholder = lugarTxt = 'Sigue la conversación…'; b.scrollIntoView({ block: 'start', behavior: 'smooth' }); if (porVoz && /^ia/.test(cls) && b.querySelector('.oir')) b.querySelector('.oir').click(); porVoz = false; }
+      function listo(cls, html) { est.remove(); var b = burbuja(cls, html); btn.disabled = false; txtEl.placeholder = lugarTxt = 'Sigue la conversación…'; b.scrollIntoView({ block: 'start', behavior: 'smooth' }); mic.disabled = false; if (porVoz && /^ia/.test(cls) && b.querySelector('.oir')) { finVoz = function () { if (conversando) escuchar(); }; b.querySelector('.oir').click(); } else if (porVoz) { conversando = false; mic.classList.remove('activo'); } porVoz = false; }
       if (activo) {
         var largo = hilo.length; hilo.push({ role: 'user', content: txt });
         C.conversar(hilo, function (p) { est.textContent = p; }).then(function (r) { listo('ia texto', fmt(r)); })
@@ -112,21 +113,47 @@
         }, 30);
       }
     }
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition, mic = el.querySelector('#cMic'), rec = null, lugarTxt = txtEl.placeholder;
+    /* Conversación por voz: tocas el micrófono una vez y se turnan; cuando el astrólogo termina de hablar, vuelve a escuchar.
+       Se corta sola si te quedas en silencio, o tocando el micrófono. */
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition, mic = el.querySelector('#cMic'), rec = null, guardia = null, lugarTxt = txtEl.placeholder;
+    function soltarMic() {
+      clearTimeout(guardia);
+      if (rec) { rec.onresult = rec.onerror = rec.onend = null; try { rec.abort(); } catch (e) { /* ya estaba cerrado */ } rec = null; }
+      mic.classList.remove('grabando'); txtEl.placeholder = lugarTxt;
+    }
+    function escuchar() {
+      soltarMic(); Personas.callar();
+      var dicho = '', cerrado = false;
+      function cerrar(enviarlo) {
+        if (cerrado) return; cerrado = true; soltarMic();
+        if (enviarlo && dicho.trim()) { porVoz = true; enviar(dicho); }
+        else { conversando = false; mic.classList.remove('activo'); }
+      }
+      try {
+        rec = new SR(); rec.lang = /^es/i.test(navigator.language || '') ? navigator.language : 'es-US'; rec.interimResults = true; rec.continuous = false;
+        rec.onresult = function (e) {
+          var t = ''; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+          txtEl.value = dicho = t;
+          clearTimeout(guardia); guardia = setTimeout(function () { cerrar(true); }, 2500); // dos segundos y medio de silencio: se envía
+        };
+        rec.onerror = function (e) {
+          if (e.error === 'not-allowed' || e.error === 'service-not-allowed') burbuja('sis', 'Necesito permiso para usar el micrófono. Revisa el permiso del navegador para esta página.', false);
+          else if (e.error !== 'no-speech' && e.error !== 'aborted') burbuja('sis', 'No pude escucharte (' + A.h(e.error) + '). Toca el micrófono para probar de nuevo, o escríbeme.', false);
+          cerrar(e.error === 'no-speech' || e.error === 'aborted');
+        };
+        rec.onend = function () { cerrar(true); };
+        rec.start();
+      } catch (err) { cerrar(false); return; }
+      mic.classList.add('grabando', 'activo'); txtEl.value = ''; txtEl.placeholder = 'Te escucho… habla con naturalidad.';
+      guardia = setTimeout(function () { cerrar(true); }, 9000); // si no llega nada, no queda colgado
+    }
     mic.onclick = function () {
       if (!SR) { burbuja('sis', 'Este navegador no permite hablarme. Prueba en Chrome o en Safari.', false); return; }
-      if (rec) { rec.stop(); return; }
-      Personas.callar();
-      var dicho = '';
-      rec = new SR(); rec.lang = /^es/i.test(navigator.language || '') ? navigator.language : 'es-US'; rec.interimResults = true; rec.continuous = false;
-      rec.onresult = function (e) { var t = ''; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; txtEl.value = dicho = t; };
-      rec.onerror = function (e) {
-        if (e.error === 'no-speech' || e.error === 'aborted') return;
-        burbuja('sis', e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'Necesito permiso para usar el micrófono. Revisa el permiso del navegador para esta página.' : 'No pude escucharte (' + A.h(e.error) + '). Prueba de nuevo o escribime.', false);
-      };
-      rec.onend = function () { rec = null; mic.classList.remove('grabando'); txtEl.placeholder = lugarTxt; if (dicho.trim()) { porVoz = true; enviar(dicho); } };
-      mic.classList.add('grabando'); txtEl.value = ''; txtEl.placeholder = 'Te escucho… toca el micrófono cuando termines.';
-      try { rec.start(); } catch (err) { rec = null; mic.classList.remove('grabando'); txtEl.placeholder = lugarTxt; }
+      if (window.Voces) Voces.desbloquear(); // habilita el audio de la respuesta con este toque
+      finVoz = null;
+      if (rec) { var t = txtEl.value; soltarMic(); conversando = false; mic.classList.remove('activo'); if (t.trim()) { porVoz = true; enviar(t); } return; }
+      if (conversando) { conversando = false; mic.classList.remove('activo'); Personas.callar(); return; } // corta la conversación por voz
+      conversando = true; escuchar();
     };
     el.querySelector('#cForm').onsubmit = function (ev) { ev.preventDefault(); enviar(txtEl.value); };
     txtEl.onkeydown = function (ev) { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); enviar(this.value); } };

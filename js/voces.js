@@ -42,10 +42,26 @@
     }
     return intento('MP3').catch(function (e) { if (x.modelo && /encod|MP3/i.test(e.message)) return intento('LINEAR16'); throw e; });
   }
-  var finActual = null, turno = 0;
+  var finActual = null, turno = 0, reproductor = null, silencio = null;
+  /* Los navegadores solo dejan sonar audio si hubo un toque reciente. Se usa un único reproductor y se lo
+     "habilita" con un sonido mudo en el momento del toque; después la respuesta suena aunque llegue segundos más tarde. */
+  function desbloquear() {
+    try {
+      if (!silencio) {
+        var n = 400, b = new Uint8Array(44 + n), v = new DataView(b.buffer), txt = function (o, t) { for (var i = 0; i < t.length; i++) b[o + i] = t.charCodeAt(i); };
+        txt(0, 'RIFF'); v.setUint32(4, 36 + n, true); txt(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+        v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); txt(36, 'data'); v.setUint32(40, n, true);
+        for (var i = 44; i < b.length; i++) b[i] = 128;
+        silencio = URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
+      }
+      reproductor = reproductor || new Audio();
+      if (reproductor.paused) { reproductor.src = silencio; var p = reproductor.play(); if (p && p.catch) p.catch(function () { /* sin permiso todavía */ }); }
+    } catch (e) { /* nada */ }
+  }
   function callar() {
     turno++;
-    if (sonando) { sonando.pause(); sonando = null; }
+    if (reproductor) { reproductor.onended = null; reproductor.pause(); }
+    sonando = null;
     if (finActual) { var f = finActual; finActual = null; f(); }
   }
   /** Lee un texto con la voz del astrólogo. La promesa se cumple cuando empieza a sonar; `fin` se llama al terminar o detenerse. */
@@ -54,9 +70,10 @@
     var mio = turno;
     return sintetizar(config(per.id), texto).then(function (src) {
       if (mio !== turno) return; // se pidió otra cosa mientras cargaba
-      sonando = new Audio(src); finActual = fin || null;
-      sonando.onended = function () { if (mio === turno) { sonando = null; var f = finActual; finActual = null; if (f) f(); } };
-      return sonando.play();
+      reproductor = reproductor || new Audio();
+      reproductor.pause(); reproductor.src = src; sonando = reproductor; finActual = fin || null;
+      reproductor.onended = function () { if (mio === turno) { sonando = null; var f = finActual; finActual = null; if (f) f(); } };
+      return reproductor.play();
     });
   }
 
@@ -144,5 +161,5 @@
     $('#vQuitar').onclick = function (ev) { ev.preventDefault(); try { localStorage.removeItem('astro.gclave'); } catch (e) { /* nada */ } voces = null; render(el); };
   }
 
-  window.Voces = { render: render, hablar: hablar, callar: callar, disponible: function () { return !!A.leer('astro.gclave', '') || !!(window.Cuenta && Cuenta.activa()); }, config: config };
+  window.Voces = { render: render, hablar: hablar, callar: callar, desbloquear: desbloquear, disponible: function () { return !!A.leer('astro.gclave', '') || !!(window.Cuenta && Cuenta.activa()); }, config: config };
 })();
