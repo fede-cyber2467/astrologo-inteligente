@@ -72,30 +72,30 @@
   function rueda(c) {
     var cx = 230, cy = 230, o = ['<svg class="rueda" viewBox="0 0 460 460" role="img" aria-label="Rueda de la carta natal">'];
     function pt(lon, r) { var a = (180 + (lon - c.asc)) * Math.PI / 180; return [(cx + r * Math.cos(a)).toFixed(1), (cy - r * Math.sin(a)).toFixed(1)]; }
-    function linea(l, r1, r2, col, w) { var a = pt(l, r1), b = pt(l, r2); o.push('<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="' + col + '" stroke-width="' + (w || 1) + '"/>'); }
-    function texto(l, r, t, tam, col) { var a = pt(l, r); o.push('<text x="' + a[0] + '" y="' + a[1] + '" font-size="' + tam + '" fill="' + col + '" text-anchor="middle" dominant-baseline="central">' + t + '</text>'); }
-    [210, 180, 112].forEach(function (r) { o.push('<circle cx="230" cy="230" r="' + r + '" fill="none" stroke="#3a4078"/>'); });
+    function linea(l, r1, r2, col, w) { var a = pt(l, r1), b = pt(l, r2); o.push('<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" style="stroke:' + col + '" stroke-width="' + (w || 1) + '"/>'); }
+    function texto(l, r, t, tam, col) { var a = pt(l, r); o.push('<text x="' + a[0] + '" y="' + a[1] + '" font-size="' + tam + '" style="fill:' + col + '" text-anchor="middle" dominant-baseline="central">' + t + '</text>'); }
+    [210, 180, 112].forEach(function (r) { o.push('<circle cx="230" cy="230" r="' + r + '" fill="none" style="stroke:var(--borde-fuerte)"/>'); });
     for (var s = 0; s < 12; s++) {
-      linea(s * 30, 180, 210, '#3a4078'); linea(s * 30, 112, 180, '#262b55');
-      texto(s * 30 + 15, 195, S[s].g + VS, 19, '#e6c16a');
-      texto(s * 30 + 15, 123, ((s - c.signoAsc + 12) % 12) + 1, 10, '#7f83ad');
+      linea(s * 30, 180, 210, 'var(--borde-fuerte)'); linea(s * 30, 112, 180, 'var(--borde)');
+      texto(s * 30 + 15, 195, S[s].g + VS, 19, 'var(--oro)');
+      texto(s * 30 + 15, 123, ((s - c.signoAsc + 12) % 12) + 1, 10, 'var(--suave)');
     }
-    var colA = { armonico: '#6fd3a0', tenso: '#f08a8a', union: '#e6c16a' };
+    var colA = { armonico: 'var(--bien)', tenso: 'var(--mal)', union: 'var(--oro)' };
     M.aspectosNatales(c).forEach(function (a) {
       if (a.a === 'asc' || a.a === 'mc' || a.b === 'asc' || a.b === 'mc' || a.orbe > 5 || a.asp.id === 'conj') return;
       var p1 = pt(c.pos[a.a].lon, 112), p2 = pt(c.pos[a.b].lon, 112);
-      o.push('<line x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] + '" stroke="' + colA[a.asp.tipo] + '" stroke-opacity=".55"/>');
+      o.push('<line x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] + '" style="stroke:' + colA[a.asp.tipo] + '" stroke-opacity=".55"/>');
     });
-    linea(c.asc, 112, 218, '#e6c16a', 2); texto(c.asc, 226, 'AC', 10, '#e6c16a');
-    linea(c.mc, 180, 218, '#e6c16a', 2); texto(c.mc, 226, 'MC', 10, '#e6c16a');
+    linea(c.asc, 112, 218, 'var(--oro)', 2); texto(c.asc, 226, 'AC', 10, 'var(--oro)');
+    linea(c.mc, 180, 218, 'var(--oro)', 2); texto(c.mc, 226, 'MC', 10, 'var(--oro)');
     var lista = M.PLANETAS.map(function (p) { return { g: p.g, lon: c.pos[p.id].lon, retro: c.pos[p.id].retro }; });
     lista.push({ g: '☊', lon: c.pos.nodo.lon });
     lista.sort(function (a, b) { return a.lon - b.lon; });
     var nivel = 0, ant = -99;
     lista.forEach(function (p) {
       nivel = p.lon - ant < 8 ? (nivel + 1) % 3 : 0; ant = p.lon;
-      linea(p.lon, 180, 174, '#eceaf6');
-      texto(p.lon, 163 - nivel * 17, p.g + VS, 19, p.retro && p.g !== '☊' ? '#f0a58a' : '#eceaf6');
+      linea(p.lon, 180, 174, 'var(--texto)');
+      texto(p.lon, 163 - nivel * 17, p.g + VS, 19, p.retro && p.g !== '☊' ? 'var(--exig)' : 'var(--texto)');
     });
     o.push('</svg>');
     return o.join('');
@@ -387,6 +387,13 @@
     if (aplicarInvitacion($('#invTxt').value)) { $('#invTxt').value = ''; $('#invMsg').textContent = 'Invitación activada: ya tienes el modo inteligente y las voces. Ahora carga tus datos.'; }
     else $('#invMsg').textContent = 'No encontré un código de invitación en ese texto. Copia el mensaje completo y pégalo de nuevo.';
   };
+  function pintarTema() { var claro = document.documentElement.dataset.tema === 'claro'; $('#btnTema').textContent = claro ? '☾ Oscuro' : '☀ Claro'; $('#btnTema').setAttribute('aria-label', claro ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'); }
+  $('#btnTema').onclick = function () {
+    var claro = document.documentElement.dataset.tema !== 'claro';
+    if (claro) document.documentElement.dataset.tema = 'claro'; else delete document.documentElement.dataset.tema;
+    guardar('astro.tema', claro ? 'claro' : 'oscuro'); pintarTema();
+  };
+  pintarTema();
   $('#tabs').onclick = function (e) { if (e.target.dataset.tab) mostrar(e.target.dataset.tab); };
   $('#selPerfil').onchange = function () { activar(this.value); busq = null; mostrar(est.tab); };
   $('#btnNuevo').onclick = $('#btnPrimera').onclick = function () { abrirPerfil(null); };

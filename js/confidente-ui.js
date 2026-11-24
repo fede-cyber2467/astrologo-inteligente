@@ -84,7 +84,7 @@
           if (o.dataset.estado === 'sonando') { Personas.callar(); return; }
           if (o.dataset.estado === 'cargando') return;
           function soltar() { o.disabled = false; o.dataset.estado = ''; o.textContent = 'Escuchar'; }
-          o.disabled = true; o.dataset.estado = 'cargando'; o.innerHTML = '<span class="rueda"></span>Preparando la voz…';
+          o.disabled = true; o.dataset.estado = 'cargando'; o.innerHTML = '<span class="girando"></span>Preparando la voz…';
           Personas.hablar(A.persona(), hablable(d), soltar).then(function () { if (o.dataset.estado === 'cargando') { o.disabled = false; o.dataset.estado = 'sonando'; o.textContent = 'Detener'; } }, soltar);
         };
         d.appendChild(o);

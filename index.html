@@ -5,7 +5,8 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Astrólogo Inteligente</title>
-<link rel="stylesheet" href="css/estilo.css?v=1795495116">
+<script>try { if (JSON.parse(localStorage.getItem("astro.tema")) === "claro") document.documentElement.dataset.tema = "claro"; } catch (e) {}</script>
+<link rel="stylesheet" href="css/estilo.css?v=1795495226">
 </head>
 <body>
 <header class="barra">
@@ -14,6 +15,7 @@
     <select id="selPerfil" aria-label="Carta activa"></select>
     <button id="btnEditar" class="sec">Editar</button>
     <button id="btnNuevo" class="sec">+ Carta</button>
+    <button id="btnTema" class="sec" type="button">☀ Claro</button>
   </div>
 </header>
 <nav class="tabs" id="tabs">
@@ -83,14 +85,14 @@
   </form>
 </dialog>
 
-<script src="js/vendor/astronomy.browser.min.js?v=1795495116"></script>
-<script src="js/motor.js?v=1795495116"></script>
-<script src="js/reglas.js?v=1795495116"></script>
-<script src="js/textos.js?v=1795495116"></script>
-<script src="js/personas.js?v=1795495116"></script>
-<script src="js/app.js?v=1795495116"></script>
-<script src="js/confidente.js?v=1795495116"></script>
-<script src="js/confidente-ui.js?v=1795495116"></script>
-<script src="js/voces.js?v=1795495116"></script>
+<script src="js/vendor/astronomy.browser.min.js?v=1795495226"></script>
+<script src="js/motor.js?v=1795495226"></script>
+<script src="js/reglas.js?v=1795495226"></script>
+<script src="js/textos.js?v=1795495226"></script>
+<script src="js/personas.js?v=1795495226"></script>
+<script src="js/app.js?v=1795495226"></script>
+<script src="js/confidente.js?v=1795495226"></script>
+<script src="js/confidente-ui.js?v=1795495226"></script>
+<script src="js/voces.js?v=1795495226"></script>
 </body>
 </html>
