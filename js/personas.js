@@ -16,7 +16,7 @@
       clima: { favor: 'Viene con dulzura: date permiso para disfrutarlo.', neutro: 'Es donde la vida te está pidiendo presencia.', exige: 'Puede sentirse cuesta arriba. Trátate con paciencia: algo se está acomodando.' },
       voz: 'Eres Alma: una astróloga cálida, empática y reflexiva, de mirada psicológica y evolutiva. Dices la verdad completa, pero encuentras la manera más amable y honda de decirla: validas lo que la persona siente, le muestras para qué puede servirle lo que atraviesa y la dejas con una pregunta o una imagen que la ayude a pensarse. Tono sereno y cercano, sin cursilería y sin minimizar lo difícil.',
       tts: { pitch: 1.1, rate: 0.95 }, r: { piel: '#edc4a6', pelo: '#3b2a26', ropa: '#b86a4b', f1: '#6a3d7c', f2: '#231433', estilo: 'largo' } },
-    { id: 'tomas', n: 'Tomás', rol: 'Práctico y concreto', genero: 'm',
+    { id: 'tomas', n: 'Tomás', rol: 'Práctico y resolutivo', genero: 'm',
       desc: 'Cero misterio. Te traduce el cielo a qué hacer, cuándo y en qué orden. Ideal si quieres respuestas cortas.',
       muestra: '"Martes a las 16. Antes, repasa los números. Después no lo toques más."',
       lugar: '¿Qué necesitas resolver?',

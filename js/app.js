@@ -147,7 +147,7 @@
     }).join('');
   }
   function renderElegirAstrologo() {
-    $('#tab-inicio').innerHTML = '<div class="hero-centro"><h1>Elige qué astrólogo te acompaña</h1><p class="suave">Los cinco astrólogos leen el mismo cielo con el mismo rigor. Cambia la forma de contártelo. Puedes cambiar cuando quieras.</p></div>' +
+    $('#tab-inicio').innerHTML = '<div class="hero-centro"><h1>Elige qué astrólogo te acompaña</h1><p class="suave">Los cinco leen el mismo cielo con el mismo rigor. Cambia la forma de contártelo. Puedes cambiar cuando quieras.</p></div>' +
       '<div class="astros">' + Personas.LISTA.map(function (p) {
         return '<button class="astro" data-per="' + p.id + '">' + Personas.retrato(p, 104) + '<b>' + p.n + '</b><span class="rol">' + p.rol + '</span><span class="desc">' + p.desc + '</span><i>' + p.muestra + '</i></button>';
       }).join('') + '</div>';
@@ -168,7 +168,7 @@
       { etq: fF(ahora, { month: 'long' }).replace(/^./, function (x) { return x.toUpperCase(); }), que: 'Mes', pens: 'Para pensar este mes', cl: R.clima(est.natal, m0, m1) }];
     vistas.forEach(function (v) { v.tx = T.textoClima(v.cl, v.que, per); v.frase = Personas.frase(v.tx.casa, v.tx.bueno, doy); });
     $('#tab-inicio').innerHTML =
-      '<div class="hero"><div class="quien">' + Personas.retrato(per, 136) + '<b>' + per.n + '</b><span>' + per.rol + '</span><a href="#" id="cambiarAstro">Cambiar de astrólogo</a></div>' +
+      '<div class="hero"><div class="quien"><div class="foto">' + Personas.retrato(per, 136) + '<button type="button" id="cambiarAstro" class="cambiar" title="Cambiar de astrólogo" aria-label="Cambiar de astrólogo"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg></button></div><b>' + per.n + '</b><span>' + per.rol + '</span></div>' +
       '<div class="consulta"><p class="saludo">Hola, ' + h(est.perfil.nombre) + '</p><h1>¿Quieres consultarme algo?</h1><div id="cZona"></div></div></div>' +
       '<blockquote class="pensar"><span id="pensarEtq"></span><p id="pensarTxt"></p></blockquote>' +
       '<div class="tarjeta clima"><div class="seg" id="seg">' + vistas.map(function (v, i) { return '<button data-i="' + i + '">' + v.etq + '</button>'; }).join('') + '</div>' +
