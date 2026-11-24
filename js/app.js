@@ -164,7 +164,7 @@
     var rl = T.resumenLlano(r.factores), doy = Math.floor(+hoy / DIA);
     var vistas = [
       { etq: 'Hoy', que: 'Día', pens: 'Para pensar hoy', cl: R.clima(est.natal, hoy, new Date(+hoy + DIA), true) },
-      { etq: 'Esta semana', que: 'Semana', pens: 'Para pensar esta semana', cl: R.clima(est.natal, hoy, new Date(+hoy + 7 * DIA)) },
+      { etq: 'Semana', que: 'Semana', pens: 'Para pensar esta semana', cl: R.clima(est.natal, hoy, new Date(+hoy + 7 * DIA)) },
       { etq: fF(ahora, { month: 'long' }).replace(/^./, function (x) { return x.toUpperCase(); }), que: 'Mes', pens: 'Para pensar este mes', cl: R.clima(est.natal, m0, m1) }];
     vistas.forEach(function (v) { v.tx = T.textoClima(v.cl, v.que, per); v.frase = Personas.frase(v.tx.casa, v.tx.bueno, doy); });
     $('#tab-inicio').innerHTML =

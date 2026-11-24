@@ -154,3 +154,9 @@ img.retrato { object-fit: cover; border: 2px solid rgba(230, 193, 106, .55); }
 @keyframes girar { to { transform: rotate(360deg); } }
 
 .dia b { text-transform: capitalize; font-size: .86rem; } .semana { grid-template-columns: repeat(7, minmax(98px, 1fr)); } .dia { min-width: 98px; }
+
+.enviar { flex: none; width: 54px; padding: 0; display: grid; place-items: center; border-radius: 14px; }
+.hero .entrada { gap: 6px; } .hero .entrada textarea { min-width: 0; }
+@media (max-width: 640px) { .mic, .enviar { width: 48px; } .hero .entrada textarea { height: 54px; font-size: 1rem; padding: 10px 12px; } }
+
+@media (max-width: 640px) { #cModoTxt { display: none; } .modo { justify-content: space-between; text-align: left; } .seg button { white-space: nowrap; } }
