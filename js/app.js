@@ -9,23 +9,25 @@
 
   /* Enlace de invitación: trae las claves en el fragmento de la dirección (no viaja al servidor), se guardan y se borra de la barra */
   var SITIO = 'https://fede-cyber2467.github.io/astrologo-inteligente/';
-  (function () {
-    var m = /[#&]inv=([^&]+)/.exec(location.hash), x = /^#i([0-9a-f]{20,})$/.exec(location.hash);
-    if (!m && !x) return;
+  /** Busca un código de invitación dentro de un texto (el mensaje completo sirve) y guarda lo que trae. */
+  function aplicarInvitacion(texto) {
+    var m = /7b22[0-9a-f]{30,}/i.exec(String(texto || '').replace(/\s+/g, ''));
+    if (!m) return false;
     try {
-      var txt = x ? decodeURIComponent(x[1].replace(/(..)/g, '%$1')) : decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))));
-      var d = JSON.parse(txt);
+      var d = JSON.parse(decodeURIComponent(m[0].replace(/(..)/g, '%$1')));
+      if (!d.a && !d.g) return false;
       if (d.a) { guardar('astro.clave', d.a); guardar('astro.ia', true); }
       if (d.g) guardar('astro.gclave', d.g);
       if (d.v) guardar('astro.voces', d.v);
-    } catch (e) { /* enlace dañado: se ignora */ }
-    history.replaceState(null, '', location.pathname + location.search);
-  })();
+      return true;
+    } catch (e) { return false; }
+  }
+  if (/^#i[0-9a-f]{20,}$/.test(location.hash)) { aplicarInvitacion(location.hash); history.replaceState(null, '', location.pathname + location.search); }
+  /** Mensaje listo para enviar: enlace normal + código (los mensajeros cortan los enlaces largos). */
   function enlaceInvitacion() {
     var d = { a: leer('astro.clave', ''), g: leer('astro.gclave', ''), v: leer('astro.voces', null) };
-    // solo letras y números después del #, para que WhatsApp y otros mensajeros no corten el enlace
     var hex = unescape(encodeURIComponent(JSON.stringify(d))).split('').map(function (c) { return ('0' + c.charCodeAt(0).toString(16)).slice(-2); }).join('');
-    return (/^https:/.test(location.protocol) ? location.origin + location.pathname : SITIO) + '#i' + hex;
+    return 'Te invito a probar Astrólogo Inteligente.\n\n1) Abre: ' + SITIO + '\n2) Copia este mensaje completo y pégalo donde dice "¿Te pasaron una invitación?".\n\nCódigo: ' + hex;
   }
 
   var perfiles = leer('astro.perfiles', []);
@@ -380,6 +382,10 @@
   }
 
   /* ---------- arranque ---------- */
+  $('#invBtn').onclick = function () {
+    if (aplicarInvitacion($('#invTxt').value)) { $('#invTxt').value = ''; $('#invMsg').textContent = 'Invitación activada: ya tienes el modo inteligente y las voces. Ahora carga tus datos.'; }
+    else $('#invMsg').textContent = 'No encontré un código de invitación en ese texto. Copia el mensaje completo y pégalo de nuevo.';
+  };
   $('#tabs').onclick = function (e) { if (e.target.dataset.tab) mostrar(e.target.dataset.tab); };
   $('#selPerfil').onchange = function () { activar(this.value); busq = null; mostrar(est.tab); };
   $('#btnNuevo').onclick = $('#btnPrimera').onclick = function () { abrirPerfil(null); };
@@ -395,7 +401,7 @@
     $('#dlgPerfil').close(); activar(null); pintarSelector(); mostrar('inicio');
   };
 
-  window.App = { enlaceInvitacion: enlaceInvitacion, persona: persona, htmlFactores: htmlFactores, htmlPuntaje: htmlPuntaje, mostrar: mostrar, est: est, lugar: lugar, h: h, ymd: ymd, deYmd: deYmd, fDia: fDia, fHora: fHora, fDiaHora: fDiaHora, fConAnio: fConAnio, leer: leer, guardar: guardar, inicioDia: inicioDia };
+  window.App = { aplicarInvitacion: aplicarInvitacion, enlaceInvitacion: enlaceInvitacion, persona: persona, htmlFactores: htmlFactores, htmlPuntaje: htmlPuntaje, mostrar: mostrar, est: est, lugar: lugar, h: h, ymd: ymd, deYmd: deYmd, fDia: fDia, fHora: fHora, fDiaHora: fDiaHora, fConAnio: fConAnio, leer: leer, guardar: guardar, inicioDia: inicioDia };
   activar(leer('astro.activo', null)); pintarSelector();
   window.addEventListener('DOMContentLoaded', function () { mostrar('inicio'); });
 })();

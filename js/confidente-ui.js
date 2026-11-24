@@ -69,9 +69,9 @@
       '<div class="chat" id="cChat"></div>' +
       '<div class="config" id="cPanel" hidden>' +
       (clave ? '<p class="nota">Con el modo inteligente, tus mensajes y tu carta se envían a Anthropic para generar cada respuesta. <a href="#" id="cQuitar">Quitar la clave de este navegador</a></p>' +
-          '<div class="fila" style="align-items:center"><button type="button" class="sec" id="cInvitar">Copiar enlace de invitación</button><span class="nota" id="cInvTxt" style="margin:0;flex:1">Quien abra ese enlace usa la app con tus claves (modo inteligente y voces). Pásalo solo a quien quieras que la pruebe.</span></div>'
+          '<div class="fila" style="align-items:center"><button type="button" class="sec" id="cInvitar">Copiar invitación</button><span class="nota" id="cInvTxt" style="margin:0;flex:1">Copia un mensaje con el enlace y un código. Quien lo use tendrá el modo inteligente y las voces con tus claves: pásalo solo a quien quieras que la pruebe.</span></div>'
         : '<p class="nota">Para encenderlo hace falta una clave de API de Claude (se crea en platform.claude.com y se paga por uso). Queda guardada solo en este navegador y viaja únicamente a Anthropic, junto con tu carta y tus mensajes.</p>' +
-          '<div class="fila"><input id="cClave" type="password" autocomplete="off" placeholder="sk-ant-…"><button type="button" id="cGuardar">Encender</button></div>') + '</div>';
+          '<div class="fila"><input id="cClave" type="password" autocomplete="off" placeholder="Clave sk-ant-… o mensaje de invitación"><button type="button" id="cGuardar">Encender</button></div>') + '</div>';
     var chat = el.querySelector('#cChat'), txtEl = el.querySelector('#cTxt'), btn = el.querySelector('#cEnviar');
     var porVoz = false;
     function hablable(d) { var c = d.cloneNode(true); c.querySelectorAll('details, .oir, .chip, .suave').forEach(function (x) { x.remove(); }); return c.textContent; }
@@ -131,12 +131,12 @@
     if (inv2) inv2.onclick = function (ev) { ev.preventDefault(); el.querySelector('#cPanel').hidden = false; inv.onclick(); };
     if (inv) inv.onclick = function () {
       var u = A.enlaceInvitacion(), t = el.querySelector('#cInvTxt');
-      function ok() { t.textContent = 'Enlace copiado. Pégalo en un mensaje privado para la persona que va a probar.'; }
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(ok, function () { window.prompt('Copia este enlace:', u); });
-      else window.prompt('Copia este enlace:', u);
+      function ok() { t.textContent = 'Mensaje copiado. Pégalo tal cual en un chat privado con la persona que va a probar.'; }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(ok, function () { window.prompt('Copia este mensaje:', u); });
+      else window.prompt('Copia este mensaje:', u);
     };
     var g = el.querySelector('#cGuardar'), q = el.querySelector('#cQuitar');
-    if (g) g.onclick = function () { var v = el.querySelector('#cClave').value.trim(); if (v) { A.guardar('astro.clave', v); A.guardar('astro.ia', true); montar(el); } };
+    if (g) g.onclick = function () { var v = el.querySelector('#cClave').value.trim(); if (v && A.aplicarInvitacion(v)) { montar(el); return; } if (v) { A.guardar('astro.clave', v); A.guardar('astro.ia', true); montar(el); } };
     if (q) q.onclick = function (ev) { ev.preventDefault(); try { localStorage.removeItem('astro.clave'); } catch (e) { /* nada */ } montar(el); };
   }
 
