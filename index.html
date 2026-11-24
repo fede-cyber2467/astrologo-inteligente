@@ -6,12 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Astrólogo Inteligente</title>
 <script>(function () { var t = null; try { t = JSON.parse(localStorage.getItem("astro.tema")); } catch (e) {} var claro = t ? t === "claro" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches); if (claro) document.documentElement.dataset.tema = "claro"; })();</script>
-<link rel="stylesheet" href="css/estilo.css?v=1795535966">
+<link rel="stylesheet" href="css/estilo.css?v=1795541588">
 </head>
 <body>
 <header class="barra">
   <div class="marca"><span class="logo">✶</span> Astrólogo Inteligente</div>
   <div class="perfil">
+    <span id="cuentaChip" class="chip bien" hidden></span>
     <select id="selPerfil" aria-label="Carta activa"></select>
     <button id="btnEditar" class="sec">Editar</button>
     <button id="btnNuevo" class="sec">+ Carta</button>
@@ -30,6 +31,7 @@
   <section id="vacio" class="tarjeta centro" hidden>
     <h2>Empecemos por tu carta</h2>
     <p>Carga tu fecha, hora y lugar de nacimiento. Todo queda guardado solo en este dispositivo.</p>
+    <p id="vacioCuenta" class="pos" hidden></p>
     <button id="btnPrimera">Cargar mis datos</button>
     <p class="nota" style="margin-top:26px">¿Te pasaron una invitación? Pega aquí el mensaje completo.</p>
     <div class="fila" style="max-width:520px;margin:0 auto 6px"><input id="invTxt" placeholder="Pega aquí el mensaje de invitación"><button class="sec" id="invBtn" type="button">Activar</button></div>
@@ -85,18 +87,18 @@
   </form>
 </dialog>
 
-<script src="js/vendor/astronomy.browser.min.js?v=1795535966"></script>
-<script src="js/motor.js?v=1795535966"></script>
-<script src="js/reglas.js?v=1795535966"></script>
-<script src="js/textos.js?v=1795535966"></script>
-<script src="js/personas.js?v=1795535966"></script>
+<script src="js/vendor/astronomy.browser.min.js?v=1795541588"></script>
+<script src="js/motor.js?v=1795541588"></script>
+<script src="js/reglas.js?v=1795541588"></script>
+<script src="js/textos.js?v=1795541588"></script>
+<script src="js/personas.js?v=1795541588"></script>
 <script src="js/vendor/supabase.js"></script>
 <script src="js/cuenta.js"></script>
-<script src="js/app.js?v=1795535966"></script>
+<script src="js/app.js?v=1795541588"></script>
 <script src="js/biblioteca.js"></script>
 <script src="js/manual.js"></script>
-<script src="js/confidente.js?v=1795535966"></script>
-<script src="js/confidente-ui.js?v=1795535966"></script>
-<script src="js/voces.js?v=1795535966"></script>
+<script src="js/confidente.js?v=1795541588"></script>
+<script src="js/confidente-ui.js?v=1795541588"></script>
+<script src="js/voces.js?v=1795541588"></script>
 </body>
 </html>
