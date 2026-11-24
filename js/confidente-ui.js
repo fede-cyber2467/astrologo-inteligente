@@ -64,7 +64,7 @@
       '<form class="entrada" id="cForm"><textarea id="cTxt" placeholder="' + A.h((A.persona() || {}).lugar || 'Escribe tu consulta') + '"></textarea><button type="button" id="cMic" class="mic" title="Hablar en vez de escribir" aria-label="Hablar en vez de escribir"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button id="cEnviar">Consultar</button></form>' +
       '<div class="modo"><label class="perilla"><input type="checkbox" id="cModo"' + (activo ? ' checked' : '') + '><span class="pista"></span><b>Modo inteligente</b></label>' +
       '<span class="nota" id="cModoTxt">' + (activo ? 'Conversa de lo que quieras: relaciono todo tu panorama.' : 'Apagado: respondo cuándo conviene algo y cómo viene tu día, semana, mes o año.') + '</span>' +
-      (clave ? '<a href="#" class="nota" id="cVerClave">Clave</a>' : '') + '</div>' +
+      (clave ? '<a href="#" class="nota" id="cInvitar2">Invitar</a><a href="#" class="nota" id="cVerClave">Clave</a>' : '') + '</div>' +
       '<div class="sugerencias" id="cSug">' + ['¿Cómo viene mi semana?', '¿Cuándo me conviene firmar un contrato?', 'Quiero viajar el mes que viene', '¿Cuál es el tema de mi año?'].map(function (s) { return '<button type="button">' + s + '</button>'; }).join('') + '</div>' +
       '<div class="chat" id="cChat"></div>' +
       '<div class="config" id="cPanel" hidden>' +
@@ -127,7 +127,8 @@
       else { panel.hidden = !modo.checked; if (modo.checked) el.querySelector('#cClave').focus(); }
     };
     if (ver) ver.onclick = function (ev) { ev.preventDefault(); panel.hidden = !panel.hidden; };
-    var inv = el.querySelector('#cInvitar');
+    var inv = el.querySelector('#cInvitar'), inv2 = el.querySelector('#cInvitar2');
+    if (inv2) inv2.onclick = function (ev) { ev.preventDefault(); el.querySelector('#cPanel').hidden = false; inv.onclick(); };
     if (inv) inv.onclick = function () {
       var u = A.enlaceInvitacion(), t = el.querySelector('#cInvTxt');
       function ok() { t.textContent = 'Enlace copiado. Pégalo en un mensaje privado para la persona que va a probar.'; }

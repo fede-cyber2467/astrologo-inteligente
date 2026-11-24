@@ -10,10 +10,11 @@
   /* Enlace de invitación: trae las claves en el fragmento de la dirección (no viaja al servidor), se guardan y se borra de la barra */
   var SITIO = 'https://fede-cyber2467.github.io/astrologo-inteligente/';
   (function () {
-    var m = /[#&]inv=([^&]+)/.exec(location.hash);
-    if (!m) return;
+    var m = /[#&]inv=([^&]+)/.exec(location.hash), x = /^#i([0-9a-f]{20,})$/.exec(location.hash);
+    if (!m && !x) return;
     try {
-      var d = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')))));
+      var txt = x ? decodeURIComponent(x[1].replace(/(..)/g, '%$1')) : decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))));
+      var d = JSON.parse(txt);
       if (d.a) { guardar('astro.clave', d.a); guardar('astro.ia', true); }
       if (d.g) guardar('astro.gclave', d.g);
       if (d.v) guardar('astro.voces', d.v);
@@ -22,8 +23,9 @@
   })();
   function enlaceInvitacion() {
     var d = { a: leer('astro.clave', ''), g: leer('astro.gclave', ''), v: leer('astro.voces', null) };
-    var b = btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    return (/^https:/.test(location.protocol) ? location.origin + location.pathname : SITIO) + '#inv=' + b;
+    // solo letras y números después del #, para que WhatsApp y otros mensajeros no corten el enlace
+    var hex = unescape(encodeURIComponent(JSON.stringify(d))).split('').map(function (c) { return ('0' + c.charCodeAt(0).toString(16)).slice(-2); }).join('');
+    return (/^https:/.test(location.protocol) ? location.origin + location.pathname : SITIO) + '#i' + hex;
   }
 
   var perfiles = leer('astro.perfiles', []);
