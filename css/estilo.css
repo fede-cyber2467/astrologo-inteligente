@@ -160,3 +160,5 @@ img.retrato { object-fit: cover; border: 2px solid rgba(230, 193, 106, .55); }
 @media (max-width: 640px) { .mic, .enviar { width: 48px; } .hero .entrada textarea { height: 54px; font-size: 1rem; padding: 10px 12px; } }
 
 @media (max-width: 640px) { #cModoTxt { display: none; } .modo { justify-content: space-between; text-align: left; } .seg button { white-space: nowrap; } }
+
+.hero .saludo { font-size: clamp(1.25rem, 3.6vw, 1.55rem); font-family: "Iowan Old Style", Palatino, Georgia, serif; letter-spacing: .01em; margin-bottom: 2px; }

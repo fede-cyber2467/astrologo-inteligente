@@ -147,7 +147,7 @@
     }).join('');
   }
   function renderElegirAstrologo() {
-    $('#tab-inicio').innerHTML = '<div class="hero-centro"><h1>Elige quién te acompaña</h1><p class="suave">Los cinco leen el mismo cielo con el mismo rigor. Cambia la forma de contártelo. Puedes cambiar cuando quieras.</p></div>' +
+    $('#tab-inicio').innerHTML = '<div class="hero-centro"><h1>Elige qué astrólogo te acompaña</h1><p class="suave">Los cinco astrólogos leen el mismo cielo con el mismo rigor. Cambia la forma de contártelo. Puedes cambiar cuando quieras.</p></div>' +
       '<div class="astros">' + Personas.LISTA.map(function (p) {
         return '<button class="astro" data-per="' + p.id + '">' + Personas.retrato(p, 104) + '<b>' + p.n + '</b><span class="rol">' + p.rol + '</span><span class="desc">' + p.desc + '</span><i>' + p.muestra + '</i></button>';
       }).join('') + '</div>';
