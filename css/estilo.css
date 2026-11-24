@@ -142,3 +142,5 @@ img.retrato { object-fit: cover; border: 2px solid rgba(230, 193, 106, .55); }
 .oir:disabled { opacity: .85; cursor: progress; }
 .rueda { width: 13px; height: 13px; border: 2px solid var(--borde); border-top-color: var(--azul); border-radius: 50%; display: inline-block; animation: girar .8s linear infinite; }
 @keyframes girar { to { transform: rotate(360deg); } }
+
+.dia b { text-transform: capitalize; font-size: .86rem; } .semana { grid-template-columns: repeat(7, minmax(98px, 1fr)); } .dia { min-width: 98px; }

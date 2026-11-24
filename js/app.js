@@ -46,9 +46,10 @@
 
   /* ---------- fechas en la zona donde vive la persona ---------- */
   function fF(d, o) { return new Intl.DateTimeFormat('es-AR', Object.assign({ timeZone: lugar().zona }, o)).format(d); }
-  function fDia(d) { return fF(d, { weekday: 'short', day: 'numeric', month: 'short' }); }
+  function fDia(d) { return fF(d, { weekday: 'long', day: 'numeric', month: 'long' }).replace(',', ''); }
+  function fDiaCorto(d) { return fF(d, { weekday: 'long', day: 'numeric' }).replace(',', ''); }
   function fCorta(d) { return fF(d, { day: 'numeric', month: 'short' }); }
-  function fConAnio(d) { return fF(d, { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function fConAnio(d) { return fF(d, { day: 'numeric', month: 'long', year: 'numeric' }); }
   function fHora(d) { return fF(d, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); }
   function fDiaHora(d) { return fDia(d) + ' ' + fHora(d); }
   function ymd(d) {
@@ -132,7 +133,7 @@
   function htmlSemana(sem) {
     return '<div class="semana">' + sem.dias.map(function (d) {
       var p = Math.max(5, Math.min(95, 50 + d.tono * 7));
-      return '<div class="dia"><b>' + fDia(d.fecha) + '</b><div class="tono" style="background:' + color(p) + '"></div>' + T.fraseTono(d.tono) +
+      return '<div class="dia"><b>' + fDiaCorto(d.fecha) + '</b><div class="tono" style="background:' + color(p) + '"></div>' + T.fraseTono(d.tono) +
         '<div class="suave">' + T.AREA[d.lunaCasa].corto + '</div></div>';
     }).join('') + '</div>';
   }
