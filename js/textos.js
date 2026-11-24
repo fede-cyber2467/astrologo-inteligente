@@ -123,9 +123,10 @@
     if (per && per.casas) top = cl.areas.filter(function (x) { return per.casas.indexOf(x.casa) >= 0; })[0] || top;
     var a = AREA[top.casa], bueno = top.tono >= -0.5, c = (per && per.clima) || { favor: 'Viene con viento a favor: es para aprovecharlo.', neutro: 'Es donde más movimiento vas a notar.', exige: 'Pide paciencia: mejor ordenar que forzar.' };
     var titulo = bueno ? que + ' ' + a.de : que + ' exigente ' + a.en;
-    var p = 'El foco está en ' + a.det + '. ' + (top.tono > 2 ? c.favor : bueno ? c.neutro : c.exige);
+    var p = 'El foco está en ' + a.det + '. ' + (top.tono > 1.5 ? c.favor : bueno ? c.neutro : c.exige);
     if (cl.mejor && cl.mejor !== top) p += ' Lo que mejor fluye: ' + AREA[cl.mejor.casa].corto.toLowerCase() + '.';
     if (cl.cuidado && cl.cuidado !== top) p += ' Ve con más cuidado ' + AREA[cl.cuidado.casa].en + '.';
+    if (cl.lunaCasa && cl.lunaCasa !== top.casa) p += ' La Luna de hoy pone el ánimo en ' + AREA[cl.lunaCasa].det + '.';
     return { titulo: titulo, texto: p, bueno: bueno, casa: top.casa };
   }
   /** Traduce un factor técnico a una frase que entiende cualquiera (o null si no vale la pena). */

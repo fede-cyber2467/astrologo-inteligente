@@ -243,32 +243,54 @@
   }
 
   /* ---------- Clima por áreas de vida: de qué "es" un día, una semana o un mes ---------- */
-  var PT_CASA = { venus: 7, luna: 4, sol: 1, mercurio: 3, marte: 1, jupiter: 2, saturno: 10, asc: 1, mc: 10 };
+  var PT_CASA = { venus: 7, luna: 4, sol: 1, mercurio: 3, marte: 6, jupiter: 9, saturno: 10, asc: 1, mc: 10 };
   var W_CASA = { sol: [2, 1], mercurio: [1.5, 0.5], venus: [3, 2], marte: [2, -0.7], jupiter: [2, 2.5], saturno: [1.5, -1.5] };
+  /* Cada período mira su propia escala: el día, la Luna y lo exacto de hoy; la semana, los planetas rápidos;
+     el mes, las lunaciones y por dónde andan Sol, Venus y Marte. Lo lento (meses) queda como fondo. */
+  var ESCALA = {
+    dia: { casas: 0.25, rapido: 2.2, lento: 0.12, lunacion: 0 },
+    semana: { casas: 0.55, rapido: 1.6, lento: 0.22, lunacion: 4 },
+    mes: { casas: 1, rapido: 0.7, lento: 0.5, lunacion: 3.5 }
+  };
   function clima(natal, desde, hasta, conLuna) {
-    var A = [], i;
+    var A = [], i, dur = (hasta - desde) / DIA, E = ESCALA[dur <= 1.5 ? 'dia' : dur <= 10 ? 'semana' : 'mes'];
     for (i = 0; i <= 12; i++) A.push({ casa: i, foco: 0, tono: 0, motivos: [] });
-    function add(casa, foco, tono, txt) { var a = A[casa]; a.foco += foco; a.tono += tono; a.motivos.push({ txt: txt, tono: tono }); }
+    function add(casa, foco, tono, txt) { var a = A[casa]; a.foco += foco; a.tono += tono; a.motivos.push({ txt: txt, tono: tono, foco: foco }); }
     var medio = new Date((+desde + +hasta) / 2), pos = M.posiciones(medio, ['sol', 'luna', 'mercurio', 'venus', 'marte', 'jupiter', 'saturno']);
     Object.keys(W_CASA).forEach(function (id) {
-      var c = natal.casaDe(pos[id].lon), w = W_CASA[id];
-      add(c, w[0], pos[id].retro && w[1] > 0 ? w[1] / 2 : w[1], P[id].n + (pos[id].retro ? ' retrógrado' : '') + ' transita tu casa ' + c + ' (' + S[M.signoDe(pos[id].lon)].n + ')');
+      var c = natal.casaDe(pos[id].lon), w = W_CASA[id], lento = id === 'jupiter' || id === 'saturno', k = E.casas * (lento && E !== ESCALA.mes ? 0.5 : 1);
+      add(c, w[0] * k, (pos[id].retro && w[1] > 0 ? w[1] / 2 : w[1]) * k, P[id].n + (pos[id].retro ? ' retrógrado' : '') + ' transita tu casa ' + c + ' (' + S[M.signoDe(pos[id].lon)].n + ')');
     });
-    if (conLuna) { var cl = natal.casaDe(pos.luna.lon); add(cl, 2.5, 0.5, 'La Luna pasa hoy por tu casa ' + cl + ' (' + S[M.signoDe(pos.luna.lon)].n + ')'); }
+    var lunaCasa = null;
+    if (conLuna) {
+      lunaCasa = natal.casaDe(pos.luna.lon);
+      add(lunaCasa, 4, 0.6, 'La Luna pasa hoy por tu casa ' + lunaCasa + ' (' + S[M.signoDe(pos.luna.lon)].n + ')');
+      puntosNat(natal).forEach(function (pt) {
+        var a = M.aspectoEntre(pos.luna.lon, pt.lon, 6); if (!a || a.asp.id === 'sext') return;
+        var ben = pt.id === 'venus' || pt.id === 'jupiter', mal = pt.id === 'marte' || pt.id === 'saturno';
+        var t = a.asp.tipo === 'armonico' ? 1 : a.asp.tipo === 'tenso' ? (ben ? -0.3 : -1) : (ben ? 1.2 : mal ? -1 : 0.5);
+        add(PT_CASA[pt.id], 2.2, t, 'La Luna de hoy en ' + a.asp.n + ' con tu ' + pt.n + ' natal');
+      });
+    }
     M.transitos(natal, desde, hasta, M.RAPIDOS.concat(M.LENTOS), 1).forEach(function (t) {
       var lento = M.LENTOS.indexOf(t.planeta) >= 0;
       if (!lento && !t.exactos.length) return;
-      var k = lento ? 0.5 : 0.8;
-      add(PT_CASA[t.punto], PESO[t.planeta] * k, tonoTransito(t) * k, P[t.planeta].n + ' en ' + t.asp.n + ' con tu ' + t.nPunto + ' natal');
+      var k = lento ? E.lento : E.rapido;
+      add(PT_CASA[t.punto], PESO[t.planeta] * k, tonoTransito(t) * k, P[t.planeta].n + ' en ' + t.asp.n + ' con tu ' + t.nPunto + ' natal' + (lento ? ' (proceso de fondo)' : ''));
     });
-    if (hasta - desde > 2 * DIA) conCasa(natal, M.lunaciones(desde, hasta)).forEach(function (e) {
-      add(e.casa, 3, e.tipo.indexOf('nueva') >= 0 ? 1 : 0.5, e.tipo + ' en tu casa ' + e.casa + ' (' + M.fmtLon(e.lon) + ')');
+    if (E.lunacion) conCasa(natal, M.lunaciones(desde, hasta)).forEach(function (e) {
+      add(e.casa, E.lunacion, e.tipo.indexOf('nueva') >= 0 ? 1 : 0.5, e.tipo + ' en tu casa ' + e.casa + ' (' + M.fmtLon(e.lon) + ')');
     });
     var areas = A.slice(1), total = 0;
-    areas.forEach(function (a) { total += a.tono; });
+    areas.forEach(function (a) { total += a.tono; a.motivos.sort(function (x, y) { return y.foco - x.foco; }); });
     var porFoco = areas.slice().sort(function (a, b) { return b.foco - a.foco; });
     var porTono = areas.slice().sort(function (a, b) { return b.tono - a.tono; });
-    return { areas: porFoco, top: porFoco[0], mejor: porTono[0].tono > 1 ? porTono[0] : null, cuidado: porTono[11].tono < -1 ? porTono[11] : null, tono: total };
+    return { areas: porFoco, top: porFoco[0], mejor: porTono[0].tono > 1 ? porTono[0] : null, cuidado: porTono[11].tono < -1 ? porTono[11] : null, tono: total, lunaCasa: lunaCasa };
+  }
+  function puntosNat(natal) {
+    var o = ['sol', 'luna', 'mercurio', 'venus', 'marte', 'jupiter', 'saturno'].map(function (id) { return { id: id, n: P[id].n, lon: natal.pos[id].lon }; });
+    o.push({ id: 'asc', n: 'Ascendente', lon: natal.asc }, { id: 'mc', n: 'Medio Cielo', lon: natal.mc });
+    return o;
   }
 
   return { clima: clima, ACCIONES: ACCIONES, ACC: ACC, puntuar: puntuar, etiqueta: etiqueta, escanear: escanear, ventanas: ventanas, anual: anual, mensual: mensual, semanal: semanal, tonoTransito: tonoTransito };
