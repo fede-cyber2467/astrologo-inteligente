@@ -307,6 +307,13 @@
   /* ---------- MÉTODO ---------- */
   function renderMetodo() {
     $('#tab-metodo').innerHTML =
+      '<div class="tarjeta"><h2>Por qué no es como preguntarle a un chat de IA</h2>' +
+      '<p>Un chat de inteligencia artificial común no calcula el cielo: cuando le preguntas dónde está un planeta, estima o inventa. Aquí es al revés.</p>' +
+      '<ul><li><b>Primero calcula, después interpreta.</b> La posición de cada planeta se obtiene con cálculo astronómico para tu fecha, hora y lugar, con precisión de alrededor de un minuto de arco. El astrólogo solo interpreta sobre esos datos.</li>' +
+      '<li><b>Parte de tu carta, no de tu signo.</b> Cada respuesta usa tu carta completa y lo que está pasando hoy sobre ella.</li>' +
+      '<li><b>Te da día y hora.</b> Para elegir un momento evalúa cada 15 minutos con decenas de criterios de la astrología tradicional y te muestra las mejores ventanas.</li>' +
+      '<li><b>Sigue un método, no una ocurrencia.</b> Las reglas vienen de técnicas documentadas de la tradición helenística, medieval y moderna, y puedes abrir el porqué de cada conclusión.</li>' +
+      '<li><b>Cinco voces, un mismo rigor.</b> Eliges cómo quieres que te lo cuenten; los cálculos son los mismos.</li></ul></div>' +
       '<div class="tarjeta"><h2>Cómo calcula</h2><p>Las posiciones salen de <b>astronomy-engine</b>, una librería astronómica abierta con precisión de alrededor de un minuto de arco. Se usa el zodíaco tropical, casas de signo entero y regencias tradicionales (los siete planetas clásicos). El Ascendente y el Medio Cielo se calculan al grado y minuto para tu latitud y longitud, respetando el huso horario histórico de tu lugar de nacimiento.</p></div>' +
       '<div class="tarjeta"><h2>Cómo elige un momento</h2><p>El puntaje sigue el orden de prioridades que enseñan Chris Brennan y Leisa Schaim: primero el regente del Ascendente, después la Luna, los planetas en los ángulos, la casa del tema y, al final, tu carta natal como desempate.</p>' +
       '<ul><li><b>Secta</b>: de día Júpiter es el gran benéfico y Marte el planeta difícil; de noche, Venus y Saturno. El maléfico contrario a la secta en una casa angular es lo que más resta.</li>' +
