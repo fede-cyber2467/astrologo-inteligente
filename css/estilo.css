@@ -137,3 +137,8 @@ img.retrato { object-fit: cover; border: 2px solid rgba(230, 193, 106, .55); }
 .czona.conversando .config { order: 4; }
 .czona.conversando .sugerencias { display: none; }
 .hero .msj { scroll-margin-top: 14px; }
+
+.oir { display: inline-flex; align-items: center; gap: 7px; }
+.oir:disabled { opacity: .85; cursor: progress; }
+.rueda { width: 13px; height: 13px; border: 2px solid var(--borde); border-top-color: var(--azul); border-radius: 50%; display: inline-block; animation: girar .8s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }

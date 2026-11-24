@@ -80,7 +80,13 @@
     function burbuja(cls, html, guardar) { var d = document.createElement('div'); d.className = 'msj ' + cls; d.innerHTML = html; chat.appendChild(d); if (guardar !== false) reg.push([cls, html]);
       if (/^ia/.test(cls) && A.persona() && (window.speechSynthesis || (window.Voces && Voces.disponible()))) {
         var o = document.createElement('button'); o.type = 'button'; o.className = 'oir'; o.textContent = 'Escuchar';
-        o.onclick = function () { Personas.hablar(A.persona(), hablable(d)); };
+        o.onclick = function () {
+          if (o.dataset.estado === 'sonando') { Personas.callar(); return; }
+          if (o.dataset.estado === 'cargando') return;
+          function soltar() { o.disabled = false; o.dataset.estado = ''; o.textContent = 'Escuchar'; }
+          o.disabled = true; o.dataset.estado = 'cargando'; o.innerHTML = '<span class="rueda"></span>Preparando la voz…';
+          Personas.hablar(A.persona(), hablable(d), soltar).then(function () { if (o.dataset.estado === 'cargando') { o.disabled = false; o.dataset.estado = 'sonando'; o.textContent = 'Detener'; } }, soltar);
+        };
         d.appendChild(o);
       }
       return d; }
@@ -90,7 +96,7 @@
       txtEl.value = ''; btn.disabled = true; el.classList.add('conversando');
       burbuja('yo', A.h(txt));
       var est = burbuja('sis', 'Mirando tu cielo…', false);
-      function listo(cls, html) { est.remove(); var b = burbuja(cls, html); btn.disabled = false; txtEl.placeholder = lugarTxt = 'Sigue la conversación…'; b.scrollIntoView({ block: 'start', behavior: 'smooth' }); if (porVoz && /^ia/.test(cls) && A.persona()) Personas.hablar(A.persona(), hablable(b)); porVoz = false; }
+      function listo(cls, html) { est.remove(); var b = burbuja(cls, html); btn.disabled = false; txtEl.placeholder = lugarTxt = 'Sigue la conversación…'; b.scrollIntoView({ block: 'start', behavior: 'smooth' }); if (porVoz && /^ia/.test(cls) && b.querySelector('.oir')) b.querySelector('.oir').click(); porVoz = false; }
       if (activo) {
         var largo = hilo.length; hilo.push({ role: 'user', content: txt });
         C.conversar(hilo, function (p) { est.textContent = p; }).then(function (r) { listo('ia texto', fmt(r)); })
@@ -106,8 +112,7 @@
     mic.onclick = function () {
       if (!SR) { burbuja('sis', 'Este navegador no permite hablarme. Prueba en Chrome o en Safari.', false); return; }
       if (rec) { rec.stop(); return; }
-      if (window.speechSynthesis) speechSynthesis.cancel();
-      if (window.Voces) Voces.callar();
+      Personas.callar();
       var dicho = '';
       rec = new SR(); rec.lang = /^es/i.test(navigator.language || '') ? navigator.language : 'es-US'; rec.interimResults = true; rec.continuous = false;
       rec.onresult = function (e) { var t = ''; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; txtEl.value = dicho = t; };

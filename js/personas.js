@@ -84,26 +84,35 @@
   function frase(casa, bueno, dia) { var f = REFLEX[casa]; return bueno ? f[dia % 2] : f[2]; }
 
   /* Voz hablada, según lo que ofrezca el dispositivo */
-  function hablar(p, texto) {
-    if (window.Voces && Voces.disponible()) {
-      if (window.speechSynthesis) speechSynthesis.cancel();
-      Voces.hablar(p, texto).catch(function () { hablarDispositivo(p, texto); });
-      return true;
-    }
-    return hablarDispositivo(p, texto);
+  /** Lee un texto con la voz del astrólogo. Devuelve una promesa que se cumple cuando empieza a sonar; `fin` se llama al terminar o al detenerse. */
+  var finDispositivo = null;
+  function hablar(p, texto, fin) {
+    fin = fin || function () {};
+    callar();
+    if (window.Voces && Voces.disponible()) return Voces.hablar(p, texto, fin).catch(function () { return hablarDispositivo(p, texto, fin); });
+    return hablarDispositivo(p, texto, fin);
   }
-  function hablarDispositivo(p, texto) {
-    if (!window.speechSynthesis) return false;
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(texto), vs = speechSynthesis.getVoices().filter(function (v) { return /^es/i.test(v.lang); });
-    var fem = /paulina|monica|mónica|marisol|angelica|angélica|isabela|francisca|soledad|helena|laura|sabina|female|mujer/i, mas = /diego|jorge|juan|carlos|eddy|reed|rocko|grandpa|male|hombre/i;
-    var pref = vs.filter(function (v) { return (p.genero === 'f' ? fem : mas).test(v.name) && !(p.genero === 'm' && /female/i.test(v.name)); });
-    var lista = pref.length ? pref : vs, v = lista.filter(function (x) { return /AR|419|MX|US/.test(x.lang); })[0] || lista[0];
-    if (v) u.voice = v;
-    u.lang = v ? v.lang : 'es-AR'; u.pitch = p.tts.pitch; u.rate = p.tts.rate;
-    speechSynthesis.speak(u);
-    return true;
+  function callar() {
+    if (window.Voces) Voces.callar();
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    if (finDispositivo) { var f = finDispositivo; finDispositivo = null; f(); }
+  }
+  function hablarDispositivo(p, texto, fin) {
+    return new Promise(function (ok, mal) {
+      if (!window.speechSynthesis) { fin(); return mal(new Error('sin voz')); }
+      var u = new SpeechSynthesisUtterance(texto), vs = speechSynthesis.getVoices().filter(function (v) { return /^es/i.test(v.lang); });
+      var fem = /paulina|monica|mónica|marisol|angelica|angélica|isabela|francisca|soledad|helena|laura|sabina|female|mujer/i, mas = /diego|jorge|juan|carlos|eddy|reed|rocko|grandpa|male|hombre/i;
+      var pref = vs.filter(function (v) { return (p.genero === 'f' ? fem : mas).test(v.name) && !(p.genero === 'm' && /female/i.test(v.name)); });
+      var lista = pref.length ? pref : vs, v = lista.filter(function (x) { return /419|MX|US/.test(x.lang); })[0] || lista[0];
+      if (v) u.voice = v;
+      u.lang = v ? v.lang : 'es-US'; u.pitch = p.tts.pitch; u.rate = p.tts.rate;
+      function cerrar() { if (finDispositivo === cerrar) finDispositivo = null; fin(); }
+      finDispositivo = cerrar;
+      u.onstart = ok; u.onend = cerrar; u.onerror = function () { cerrar(); mal(new Error('voz')); };
+      speechSynthesis.speak(u);
+      setTimeout(ok, 1500);
+    });
   }
 
-  window.Personas = { LISTA: LISTA, POR_ID: POR_ID, retrato: retrato, dibujo: dibujo, frase: frase, hablar: hablar };
+  window.Personas = { LISTA: LISTA, POR_ID: POR_ID, retrato: retrato, dibujo: dibujo, frase: frase, hablar: hablar, callar: callar };
 })();

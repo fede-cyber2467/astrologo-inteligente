@@ -41,11 +41,22 @@
     }
     return intento('MP3').catch(function (e) { if (x.modelo && /encod|MP3/i.test(e.message)) return intento('LINEAR16'); throw e; });
   }
-  function callar() { if (sonando) { sonando.pause(); sonando = null; } }
-  /** Lee un texto con la voz del astrólogo. Devuelve una promesa que falla si no hay clave o Google rechaza el pedido. */
-  function hablar(per, texto) {
+  var finActual = null, turno = 0;
+  function callar() {
+    turno++;
+    if (sonando) { sonando.pause(); sonando = null; }
+    if (finActual) { var f = finActual; finActual = null; f(); }
+  }
+  /** Lee un texto con la voz del astrólogo. La promesa se cumple cuando empieza a sonar; `fin` se llama al terminar o detenerse. */
+  function hablar(per, texto, fin) {
     callar();
-    return sintetizar(config(per.id), texto).then(function (src) { callar(); sonando = new Audio(src); return sonando.play(); });
+    var mio = turno;
+    return sintetizar(config(per.id), texto).then(function (src) {
+      if (mio !== turno) return; // se pidió otra cosa mientras cargaba
+      sonando = new Audio(src); finActual = fin || null;
+      sonando.onended = function () { if (mio === turno) { sonando = null; var f = finActual; finActual = null; if (f) f(); } };
+      return sonando.play();
+    });
   }
 
   function pedir(ruta, cuerpo) {
