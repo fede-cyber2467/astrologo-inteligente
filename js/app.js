@@ -388,11 +388,16 @@
     else $('#invMsg').textContent = 'No encontré un código de invitación en ese texto. Copia el mensaje completo y pégalo de nuevo.';
   };
   function pintarTema() { var claro = document.documentElement.dataset.tema === 'claro'; $('#btnTema').textContent = claro ? '☾ Oscuro' : '☀ Claro'; $('#btnTema').setAttribute('aria-label', claro ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'); }
+  var mqClaro = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : null;
+  function ponerTema(claro) { if (claro) document.documentElement.dataset.tema = 'claro'; else delete document.documentElement.dataset.tema; pintarTema(); }
   $('#btnTema').onclick = function () {
     var claro = document.documentElement.dataset.tema !== 'claro';
-    if (claro) document.documentElement.dataset.tema = 'claro'; else delete document.documentElement.dataset.tema;
-    guardar('astro.tema', claro ? 'claro' : 'oscuro'); pintarTema();
+    // si la elección coincide con la del dispositivo no se guarda nada: vuelve a seguir al dispositivo
+    if (mqClaro && mqClaro.matches === claro) { try { localStorage.removeItem('astro.tema'); } catch (e) { /* nada */ } }
+    else guardar('astro.tema', claro ? 'claro' : 'oscuro');
+    ponerTema(claro);
   };
+  if (mqClaro && mqClaro.addEventListener) mqClaro.addEventListener('change', function (ev) { if (!leer('astro.tema', null)) ponerTema(ev.matches); });
   pintarTema();
   $('#tabs').onclick = function (e) { if (e.target.dataset.tab) mostrar(e.target.dataset.tab); };
   $('#selPerfil').onchange = function () { activar(this.value); busq = null; mostrar(est.tab); };
