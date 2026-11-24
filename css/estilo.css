@@ -129,3 +129,11 @@ img.retrato { object-fit: cover; border: 2px solid rgba(230, 193, 106, .55); }
 .hero .entrada { align-items: stretch; }
 
 [hidden] { display: none !important; }
+
+.czona { display: flex; flex-direction: column; }
+.czona.conversando .chat { order: 1; margin: 0 0 12px; }
+.czona.conversando .entrada { order: 2; }
+.czona.conversando .modo { order: 3; }
+.czona.conversando .config { order: 4; }
+.czona.conversando .sugerencias { display: none; }
+.hero .msj { scroll-margin-top: 14px; }

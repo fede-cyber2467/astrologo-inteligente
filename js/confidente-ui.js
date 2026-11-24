@@ -47,7 +47,7 @@
   function local(txt) {
     var t = plano(txt), hoy = A.inicioDia(new Date()), e = A.est;
     if (/como (viene|va|pinta|esta|estoy)|que me espera|energia|tema (central )?de/.test(t)) {
-      if (/\bano\b/.test(t)) return T.fraseProfeccion(R.anual(e.natal, e.nac, hoy)).map(function (p) { return '<p>' + A.h(p) + '</p>'; }).join('') + '<p class="suave">El detalle de tránsitos y eclipses está en "Pronóstico".</p>';
+      if (/\bano\b/.test(t)) return '<p class="suave">De hoy a 12 meses (hasta ' + A.fConAnio(new Date(+hoy + 365 * DIA)) + ').</p>' + T.fraseProfeccion(R.anual(e.natal, e.nac, hoy)).map(function (p) { return '<p>' + A.h(p) + '</p>'; }).join('') + '<p class="suave">El detalle de tránsitos y eclipses está en "Pronóstico".</p>';
       if (/\bmes\b/.test(t)) return htmlClima('Mes', hoy, new Date(+hoy + 30 * DIA));
       if (/semana/.test(t)) return htmlClima('Semana', hoy, new Date(+hoy + 7 * DIA));
       return htmlClima('Día', hoy, new Date(+hoy + DIA), true);
@@ -74,6 +74,8 @@
           '<div class="fila"><input id="cClave" type="password" autocomplete="off" placeholder="Clave sk-ant-… o mensaje de invitación"><button type="button" id="cGuardar">Encender</button></div>') + '</div>';
     var chat = el.querySelector('#cChat'), txtEl = el.querySelector('#cTxt'), btn = el.querySelector('#cEnviar');
     var porVoz = false;
+    el.classList.add('czona'); el.classList.toggle('conversando', reg.length > 0);
+    if (reg.length) txtEl.placeholder = 'Sigue la conversación…';
     function hablable(d) { var c = d.cloneNode(true); c.querySelectorAll('details, .oir, .chip, .suave').forEach(function (x) { x.remove(); }); return c.textContent; }
     function burbuja(cls, html, guardar) { var d = document.createElement('div'); d.className = 'msj ' + cls; d.innerHTML = html; chat.appendChild(d); if (guardar !== false) reg.push([cls, html]);
       if (/^ia/.test(cls) && A.persona() && (window.speechSynthesis || (window.Voces && Voces.disponible()))) {
@@ -85,10 +87,10 @@
     reg.slice().forEach(function (b) { burbuja(b[0], b[1], false); });
     function enviar(txt) {
       txt = txt.trim(); if (!txt || btn.disabled) return;
-      txtEl.value = ''; btn.disabled = true;
+      txtEl.value = ''; btn.disabled = true; el.classList.add('conversando');
       burbuja('yo', A.h(txt));
       var est = burbuja('sis', 'Mirando tu cielo…', false);
-      function listo(cls, html) { est.remove(); var b = burbuja(cls, html); btn.disabled = false; b.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); if (porVoz && /^ia/.test(cls) && A.persona()) Personas.hablar(A.persona(), hablable(b)); porVoz = false; }
+      function listo(cls, html) { est.remove(); var b = burbuja(cls, html); btn.disabled = false; txtEl.placeholder = lugarTxt = 'Sigue la conversación…'; b.scrollIntoView({ block: 'start', behavior: 'smooth' }); if (porVoz && /^ia/.test(cls) && A.persona()) Personas.hablar(A.persona(), hablable(b)); porVoz = false; }
       if (activo) {
         var largo = hilo.length; hilo.push({ role: 'user', content: txt });
         C.conversar(hilo, function (p) { est.textContent = p; }).then(function (r) { listo('ia texto', fmt(r)); })

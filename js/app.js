@@ -48,7 +48,7 @@
   function fF(d, o) { return new Intl.DateTimeFormat('es-AR', Object.assign({ timeZone: lugar().zona }, o)).format(d); }
   function fDia(d) { return fF(d, { weekday: 'short', day: 'numeric', month: 'short' }); }
   function fCorta(d) { return fF(d, { day: 'numeric', month: 'short' }); }
-  function fConAnio(d) { return fF(d, { day: 'numeric', month: 'short', year: '2-digit' }); }
+  function fConAnio(d) { return fF(d, { day: 'numeric', month: 'short', year: 'numeric' }); }
   function fHora(d) { return fF(d, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); }
   function fDiaHora(d) { return fDia(d) + ' ' + fHora(d); }
   function ymd(d) {
@@ -213,7 +213,7 @@
     var el = $('#tab-pronostico'), hoy = inicioDia(new Date()), cuerpo = '';
     if (pron.sub === 'anio') {
       var a = R.anual(est.natal, est.nac, hoy);
-      cuerpo = '<div class="tarjeta"><h2>Tu año</h2><p class="suave">Profección vigente del ' + fConAnio(a.profeccion.desde) + ' al ' + fConAnio(a.profeccion.hasta) + '</p>' +
+      cuerpo = '<div class="tarjeta"><h2>Tus próximos 12 meses</h2><p class="suave">De hoy al ' + fConAnio(a.hasta) + '. Tu año de cumpleaños a cumpleaños va del ' + fConAnio(a.profeccion.desde) + ' al ' + fConAnio(a.profeccion.hasta) + '</p>' +
         T.fraseProfeccion(a).map(function (x) { return '<p>' + h(x) + '</p>'; }).join('') + '</div>' +
         '<div class="tarjeta"><h3>Grandes tránsitos de los próximos 12 meses</h3>' + lista(a.transitos.map(function (t) { return liTransito(t, fConAnio); }), 'No hay tránsitos lentos exactos en este período.') + '</div>' +
         '<div class="grilla"><div class="tarjeta"><h3>Eclipses</h3>' + lista(a.eclipses.map(function (e) { return liLunacion(e, fConAnio); }), 'Sin eclipses en el período.') + '</div>' +
