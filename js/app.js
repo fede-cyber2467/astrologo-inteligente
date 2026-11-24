@@ -336,14 +336,14 @@
   }
 
   /* ---------- pestañas ---------- */
-  var RENDER = { voces: function () { window.Voces.render($('#tab-voces')); }, inicio: renderInicio, carta: renderCarta, pronostico: renderPronostico, elegir: renderElegir, metodo: function () { renderMetodo(); pintarBiblioteca(); } };
+  var RENDER = { comparar: function () { window.Comparar.render($('#tab-comparar')); }, voces: function () { window.Voces.render($('#tab-voces')); }, inicio: renderInicio, carta: renderCarta, pronostico: renderPronostico, elegir: renderElegir, metodo: function () { renderMetodo(); pintarBiblioteca(); } };
   function mostrar(tab) {
     est.tab = tab;
     document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === tab); });
     document.querySelectorAll('.tab').forEach(function (s) { s.hidden = !est.perfil || s.id !== 'tab-' + tab; });
     $('#vacio').hidden = !!est.perfil;
     if (!est.perfil) return;
-    if (!est.hecho[tab]) { RENDER[tab](); est.hecho[tab] = true; }
+    if (!est.hecho[tab] || tab === 'comparar') { RENDER[tab](); est.hecho[tab] = true; }
   }
   function pintarSelector() {
     $('#selPerfil').innerHTML = perfiles.map(function (p) { return '<option value="' + p.id + '">' + h(p.nombre) + '</option>'; }).join('');
@@ -501,5 +501,7 @@
 
   window.App = { aplicarInvitacion: aplicarInvitacion, enlaceInvitacion: enlaceInvitacion, persona: persona, htmlFactores: htmlFactores, htmlPuntaje: htmlPuntaje, mostrar: mostrar, est: est, lugar: lugar, h: h, ymd: ymd, deYmd: deYmd, fDia: fDia, fHora: fHora, fDiaHora: fDiaHora, fConAnio: fConAnio, leer: leer, guardar: guardar, inicioDia: inicioDia };
   activar(leer('astro.activo', null)); pintarSelector();
+  // Las pantallas de prueba (voces y comparación de modelos) se ven solo trabajando en la compu, no en la app pública
+  if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) document.querySelectorAll('[data-tab=voces], [data-tab=comparar]').forEach(function (b) { b.hidden = true; });
   window.addEventListener('DOMContentLoaded', function () { mostrar('inicio'); if (window.Biblioteca) Biblioteca.iniciar(); });
 })();

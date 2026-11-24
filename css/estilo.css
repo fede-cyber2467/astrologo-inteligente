@@ -172,3 +172,7 @@ img.retrato { object-fit: cover; border: 2px solid rgba(230, 193, 106, .55); }
 
 .mic.activo { border-color: var(--oro); color: var(--oro); }
 .mic:disabled { opacity: .55; }
+
+.cmp { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 14px; overflow-x: auto; }
+.cmp-col { min-width: 220px; border-left: 2px solid var(--borde); padding-left: 12px; }
+.cmp-col > b { color: var(--oro); } .cmp-txt { white-space: pre-wrap; font-size: .92rem; margin-top: 8px; overflow-wrap: anywhere; }

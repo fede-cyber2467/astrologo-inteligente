@@ -115,7 +115,7 @@
 
   function conversar(hilo, alPaso) {
     var clave = A.leer('astro.clave', '');
-    var cuerpo = { model: MODELO, max_tokens: 16000, thinking: { type: 'adaptive' }, output_config: { effort: 'medium' },
+    var cuerpo = { model: hilo.modelo || MODELO, max_tokens: 16000, thinking: { type: 'adaptive' }, output_config: { effort: 'medium' },
       system: [{ type: 'text', text: hilo.sistema || (hilo.sistema = sistema()), cache_control: { type: 'ephemeral' } }], tools: hilo.herramientas || (hilo.herramientas = herramientas()), messages: hilo };
     // Las instrucciones quedan fijas durante toda la conversación: si cambian, el servicio rechaza continuarla.
     return llamar(clave, cuerpo, true).catch(function (e) {
@@ -125,6 +125,10 @@
       return llamar(clave, cuerpo, true);
     }).then(function (res) {
       hilo.push({ role: 'assistant', content: res.content });
+      if (res.usage) { // consumo acumulado de la conversación, para medir costos
+        var u = hilo.uso = hilo.uso || { entrada: 0, salida: 0, cacheLeida: 0, cacheEscrita: 0, llamadas: 0 };
+        u.entrada += res.usage.input_tokens || 0; u.salida += res.usage.output_tokens || 0; u.cacheLeida += res.usage.cache_read_input_tokens || 0; u.cacheEscrita += res.usage.cache_creation_input_tokens || 0; u.llamadas++;
+      }
       if (res.stop_reason === 'refusal') return 'No puedo ayudarte con ese pedido.';
       if (res.stop_reason !== 'tool_use') {
         var txt = res.content.filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('\n').trim();
