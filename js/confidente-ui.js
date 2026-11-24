@@ -59,7 +59,7 @@
 
   function fmt(t) { return A.h(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
   function montar(el) {
-    var id = A.est.perfil.id, clave = A.leer('astro.clave', ''), activo = !!clave && A.leer('astro.ia', true) !== false, reg = registro[id] = registro[id] || [], hilo = C.hilos[id] = C.hilos[id] || [];
+    var id = A.est.perfil.id + ':' + ((A.persona() || {}).id || ''), clave = A.leer('astro.clave', ''), activo = !!clave && A.leer('astro.ia', true) !== false, reg = registro[id] = registro[id] || [], hilo = C.hilos[id] = C.hilos[id] || [];
     el.innerHTML =
       '<form class="entrada" id="cForm"><textarea id="cTxt" placeholder="' + A.h((A.persona() || {}).lugar || 'Escribe tu consulta') + '"></textarea><button type="button" id="cMic" class="mic" title="Hablar en vez de escribir" aria-label="Hablar en vez de escribir"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button id="cEnviar">Consultar</button></form>' +
       '<div class="modo"><label class="perilla"><input type="checkbox" id="cModo"' + (activo ? ' checked' : '') + '><span class="pista"></span><b>Modo inteligente</b></label>' +
