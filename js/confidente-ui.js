@@ -105,7 +105,7 @@
       if (activo) {
         var largo = hilo.length; hilo.push({ role: 'user', content: txt });
         C.conversar(hilo, function (p) { est.textContent = p; }).then(function (r) { listo('ia texto', fmt(r)); })
-          .catch(function (e) { hilo.length = largo; listo('sis', 'No pude responder: ' + A.h(e.message === 'Failed to fetch' ? 'no hay conexión con Anthropic.' : e.message)); });
+          .catch(function (e) { hilo.length = largo; listo(e.tope ? 'ia' : 'sis', e.tope ? '<p>' + A.h(e.message) + '</p>' : 'No pude responder: ' + A.h(e.message === 'Failed to fetch' ? 'no hay conexión.' : e.message)); });
       } else {
         setTimeout(function () {
           var r; try { r = local(txt); } catch (e) { r = null; }

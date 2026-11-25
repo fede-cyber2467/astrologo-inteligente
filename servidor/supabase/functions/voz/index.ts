@@ -1,5 +1,5 @@
 // Voz del astrólogo. La clave de Google vive solo acá, como secreto del servidor.
-import { CORS, identificar, responder } from "../_compartido/comun.ts";
+import { CORS, identificar, responder, topeVoz } from "../_compartido/comun.ts";
 
 const VOZ_PERMITIDA = /^es-[A-Z0-9]{2,3}-(Wavenet|Standard)-[A-Z]$/;
 
@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
   try { c = await req.json(); } catch { return responder({ error: "Pedido inválido" }, 400); }
   const texto = String(c.texto ?? "").slice(0, 4500);
   if (!texto.trim() || !VOZ_PERMITIDA.test(String(c.voz))) return responder({ error: "Pedido de voz inválido" }, 400);
-  if (quien.uso.voz_caracteres + texto.length > quien.tope.voz) return responder({ error: "Llegaste al tope de voz de hoy.", tope: true }, 429);
+  if (topeVoz(quien, texto.length)) return responder({ error: "Llegaste al tope de voz.", tope: true }, 429);
 
   const r = await fetch("https://texttospeech.googleapis.com/v1/text:synthesize", {
     method: "POST",

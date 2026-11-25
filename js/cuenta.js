@@ -27,7 +27,7 @@
     }).then(function (r) {
       return r.json().then(function (j) {
         if (r.ok) return j;
-        var e = j && j.error; throw new Error((e && (e.message || e)) || ('Error ' + r.status));
+        var e = j && j.error, err = new Error((e && (e.message || e)) || ('Error ' + r.status)); err.tope = !!(j && j.tope); throw err;
       });
     });
   }

@@ -1,6 +1,6 @@
 // Consulta al astrólogo inteligente. La clave de Claude vive solo acá, como secreto del servidor.
 // La app envía las instrucciones, la conversación y las herramientas; el servidor fija el modelo y los límites.
-import { CORS, identificar, responder } from "../_compartido/comun.ts";
+import { CORS, identificar, responder, topeConsulta } from "../_compartido/comun.ts";
 
 const MODELO = "claude-sonnet-5-5";
 
@@ -20,11 +20,8 @@ Deno.serve(async (req) => {
   // Cuenta como consulta solo lo que escribe la persona, no las idas y vueltas internas de las herramientas
   const ultimo = mensajes[mensajes.length - 1];
   const esPregunta = ultimo.role === "user" && typeof ultimo.content === "string";
-  if (esPregunta && quien.uso.consultas >= quien.tope.consultas) {
-    return responder({ error: quien.plan === "gratis"
-      ? `Llegaste a las ${quien.tope.consultas} consultas de hoy del plan gratuito. Vuelve mañana o pásate al plan completo.`
-      : `Llegaste a las ${quien.tope.consultas} consultas de hoy. Mañana seguimos.`, tope: true }, 429);
-  }
+  const aviso = esPregunta ? topeConsulta(quien) : null;
+  if (aviso) return responder({ error: aviso, tope: true, plan: quien.plan }, 429);
 
   const pedido = (conRespaldo: boolean) => fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
