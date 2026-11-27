@@ -27,7 +27,7 @@
   function enlaceInvitacion() {
     var d = { a: leer('astro.clave', ''), g: leer('astro.gclave', ''), v: leer('astro.voces', null) };
     var hex = unescape(encodeURIComponent(JSON.stringify(d))).split('').map(function (c) { return ('0' + c.charCodeAt(0).toString(16)).slice(-2); }).join('');
-    return 'Te invito a probar Astrólogo Inteligente.\n\n1) Abre: ' + SITIO + '\n2) Copia este mensaje completo y pégalo donde dice "¿Te pasaron una invitación?".\n\nCódigo: ' + hex;
+    return 'Te invito a probar Urania.\n\n1) Abre: ' + SITIO + '\n2) Copia este mensaje completo y pégalo donde dice "¿Te pasaron una invitación?".\n\nCódigo: ' + hex;
   }
 
   var perfiles = leer('astro.perfiles', []);
@@ -166,6 +166,18 @@
       { etq: 'Hoy', que: 'Día', pens: 'Para pensar hoy', cl: R.clima(est.natal, hoy, new Date(+hoy + DIA), true) },
       { etq: 'Semana', que: 'Semana', pens: 'Para pensar esta semana', cl: R.clima(est.natal, hoy, new Date(+hoy + 7 * DIA)) },
       { etq: fF(ahora, { month: 'long' }).replace(/^./, function (x) { return x.toUpperCase(); }), que: 'Mes', pens: 'Para pensar este mes', cl: R.clima(est.natal, m0, m1) }];
+    // Tono general: el del día de hoy, y el promedio de los días de la semana y del mes
+    function media(d) { var s = 0; d.forEach(function (x) { s += x.tono; }); return d.length ? s / d.length : 0; }
+    var diasMes = []; for (var d0 = m0; d0 < m1; d0 = new Date(+d0 + 7 * DIA)) R.semanal(est.natal, d0).dias.forEach(function (x) { if (x.fecha < m1) diasMes.push(x); });
+    vistas[0].tn = T.tono(sem.dias[0].tono, 'Día'); vistas[1].tn = T.tono(media(sem.dias), 'Semana'); vistas[2].tn = T.tono(media(diasMes), 'Mes');
+    vistas[1].extra = '<h3>Día por día</h3>' + htmlSemana(sem);
+    // Cuando el tono general y el del tema principal no coinciden, una frase los une para que no se contradigan
+    function puente(v) {
+      var fem = v.que === 'Semana', top = v.cl.areas.filter(function (x) { return x.casa === v.tx.casa; })[0];
+      if (v.tn.cls === 'bien' && !v.tx.bueno) return 'En general ' + (fem ? 'la' : 'el') + ' ' + v.que.toLowerCase() + ' acompaña, pero este tema te pide más. ';
+      if (v.tn.cls === 'mal' && top && top.tono > 1.5) return 'En general ' + (fem ? 'la' : 'el') + ' ' + v.que.toLowerCase() + ' pide cuidado, pero este tema viene a favor. ';
+      return '';
+    }
     vistas.forEach(function (v) { v.tx = T.textoClima(v.cl, v.que, per); v.frase = Personas.frase(v.tx.casa, v.tx.bueno, doy); });
     $('#tab-inicio').innerHTML =
       '<div class="hero"><div class="quien"><div class="foto">' + Personas.retrato(per, 136) + '<button type="button" id="cambiarAstro" class="cambiar" title="Cambiar de astrólogo" aria-label="Cambiar de astrólogo"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg></button></div><b>' + per.n + '</b><span>' + per.rol + '</span></div>' +
@@ -173,11 +185,10 @@
       '<blockquote class="pensar"><span id="pensarEtq"></span><p id="pensarTxt"></p></blockquote>' +
       '<div class="tarjeta clima"><div class="seg" id="seg">' + vistas.map(function (v, i) { return '<button data-i="' + i + '">' + v.etq + '</button>'; }).join('') + '</div>' +
       '<div class="carrusel" id="carrusel">' + vistas.map(function (v) {
-        return '<div class="panel"><h2 class="' + (v.tx.bueno ? 'bueno' : 'exig') + '">' + h(v.tx.titulo) + '</h2><p>' + h(v.tx.texto) + '</p>' +
-          '<details><summary>¿Por qué?</summary><p class="suave">Áreas de tu vida más activadas (barra más larga, más movimiento; verde fluye, rojo exige) y qué las mueve en tu carta:</p>' + detalleClima(v.cl) + '</details></div>';
+        return '<div class="panel"><div class="tono-gral ' + v.tn.cls + '"><i></i>' + v.tn.txt + '</div><h2 class="bueno">' + h(v.que + ' ' + T.AREA[v.tx.casa].de) + '</h2><p>' + h(puente(v) + v.tx.texto) + '</p>' +
+          '<details><summary>¿Por qué?</summary><p class="suave">Áreas de tu vida más activadas (barra más larga, más movimiento; verde fluye, rojo exige) y qué las mueve en tu carta:</p>' + detalleClima(v.cl) + (v.extra || '') + '</details></div>';
       }).join('') + '</div></div>' +
       '<details class="tarjeta plegable"><summary>Para profundizar: el cielo de este momento</summary>' +
-      '<h3 style="margin-top:14px">Tus próximos 7 días</h3>' + htmlSemana(sem) +
       '<p style="margin-top:16px">' + htmlPuntaje(r.puntaje) + ' <span class="suave">para iniciar algo ahora mismo (' + fHora(ahora) + ', ' + h(l.nombre) + ')</span></p>' +
       (rl.favor.length ? '<p><b>A favor:</b> ' + h(rl.favor.join('. ')) + '.</p>' : '') + (rl.contra.length ? '<p><b>A tener en cuenta:</b> ' + h(rl.contra.join('. ')) + '.</p>' : '') +
       '<h3>Factores</h3>' + htmlFactores(r.factores) +

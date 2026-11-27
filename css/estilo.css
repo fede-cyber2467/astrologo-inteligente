@@ -21,7 +21,7 @@ h2 { font-size: 1.35rem; } h3 { font-size: 1.08rem; color: var(--oro); }
 p { margin: 0 0 .7em; }
 .barra { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 14px 16px 6px; max-width: 1080px; margin: 0 auto; }
 .marca { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 1.3rem; letter-spacing: .01em; }
-.logo { color: var(--oro); }
+.marca { display: flex; align-items: center; gap: 9px; letter-spacing: .14em; text-transform: uppercase; font-size: 1.12rem; } .logo { color: var(--oro); width: 30px; height: 30px; flex: none; }
 .perfil { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .tabs { display: flex; gap: 4px; overflow-x: auto; padding: 8px 16px; max-width: 1080px; margin: 0 auto; scrollbar-width: none; }
 .tabs button { background: none; border: 1px solid transparent; color: var(--suave); padding: 8px 14px; border-radius: 999px; white-space: nowrap; font-weight: 500; }
@@ -176,3 +176,9 @@ img.retrato { object-fit: cover; border: 2px solid rgba(230, 193, 106, .55); }
 .cmp { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 14px; overflow-x: auto; }
 .cmp-col { min-width: 220px; border-left: 2px solid var(--borde); padding-left: 12px; }
 .cmp-col > b { color: var(--oro); } .cmp-txt { white-space: pre-wrap; font-size: .92rem; margin-top: 8px; overflow-wrap: anywhere; }
+
+.tono-gral { display: flex; width: fit-content; align-items: center; gap: 8px; margin: 0 auto 10px; padding: 5px 14px 5px 11px; border-radius: 999px; font-weight: 600; font-size: .95rem; border: 1px solid; }
+.tono-gral i { width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+.tono-gral.bien { color: var(--bien); background: color-mix(in srgb, var(--bien) 13%, transparent); border-color: color-mix(in srgb, var(--bien) 45%, transparent); }
+.tono-gral.medio { color: var(--medio); background: color-mix(in srgb, var(--medio) 13%, transparent); border-color: color-mix(in srgb, var(--medio) 45%, transparent); }
+.tono-gral.mal { color: var(--mal); background: color-mix(in srgb, var(--mal) 13%, transparent); border-color: color-mix(in srgb, var(--mal) 45%, transparent); }

@@ -133,8 +133,17 @@
     return P[e.planeta].n + (e.retro ? ' empieza a retrogradar' : ' retoma el movimiento directo') + ' en ' + M.fmtLon(e.lon) + '. ' +
       (e.retro ? 'Tiempo de revisar ' : 'Se destraba ') + 'lo relativo a ' + TEMA[e.planeta] + '.';
   }
-  function fraseTono(t) {
-    return t >= 4 ? 'Día muy favorable' : t >= 1.5 ? 'Día fluido' : t > -1.5 ? 'Día neutro' : t > -4 ? 'Día exigente' : 'Día para ir con cuidado';
+  function fraseTono(t) { return tono(t, 'Día').txt; }
+  /** Tono general de un día, una semana o un mes: la etiqueta y su color (bien, medio, mal).
+      En semana y mes el valor es un promedio de días, que se mueve menos: los cortes son más cercanos a cero. */
+  function tono(t, que) {
+    var fem = que === 'Semana', dia = que === 'Día' || !que, q = que || 'Día';
+    var c = dia ? [4, 1.5, -1.5, -4] : [3.5, 1.2, -0.8, -3];
+    if (t >= c[0]) return { txt: q + ' muy favorable', cls: 'bien' };
+    if (t >= c[1]) return { txt: q + (fem ? ' fluida' : ' fluido'), cls: 'bien' };
+    if (t > c[2]) return { txt: q + (fem ? ' neutra' : ' neutro'), cls: 'medio' };
+    if (t > c[3]) return { txt: q + ' exigente', cls: 'mal' };
+    return { txt: q + ' para ir con cuidado', cls: 'mal' };
   }
 
   /* ---------- Lenguaje llano ---------- */
@@ -221,5 +230,5 @@
     return { favor: fav.slice(0, 2), contra: con.slice(0, 2) };
   }
 
-  return { AREA: AREA, textoClima: textoClima, llano: llano, resumenLlano: resumenLlano, TEMA: TEMA, CASA: CASA, ESTILO: ESTILO, ACCION: ACCION, lecturaNatal: lecturaNatal, fraseTransito: fraseTransito, fraseLunacion: fraseLunacion, fraseProfeccion: fraseProfeccion, fraseEstacion: fraseEstacion, fraseTono: fraseTono, nom: nom };
+  return { AREA: AREA, textoClima: textoClima, llano: llano, resumenLlano: resumenLlano, TEMA: TEMA, CASA: CASA, ESTILO: ESTILO, ACCION: ACCION, lecturaNatal: lecturaNatal, fraseTransito: fraseTransito, fraseLunacion: fraseLunacion, fraseProfeccion: fraseProfeccion, fraseEstacion: fraseEstacion, fraseTono: fraseTono, tono: tono, nom: nom };
 });
