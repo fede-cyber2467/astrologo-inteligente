@@ -27,7 +27,7 @@
   function enlaceInvitacion() {
     var d = { a: leer('astro.clave', ''), g: leer('astro.gclave', ''), v: leer('astro.voces', null) };
     var hex = unescape(encodeURIComponent(JSON.stringify(d))).split('').map(function (c) { return ('0' + c.charCodeAt(0).toString(16)).slice(-2); }).join('');
-    return 'Te invito a probar Urania.\n\n1) Abre: ' + SITIO + '\n2) Copia este mensaje completo y pégalo donde dice "¿Te pasaron una invitación?".\n\nCódigo: ' + hex;
+    return 'Te invito a probar Uraluna.\n\n1) Abre: ' + SITIO + '\n2) Copia este mensaje completo y pégalo donde dice "¿Te pasaron una invitación?".\n\nCódigo: ' + hex;
   }
 
   var perfiles = leer('astro.perfiles', []);
@@ -513,6 +513,6 @@
   window.App = { aplicarInvitacion: aplicarInvitacion, enlaceInvitacion: enlaceInvitacion, persona: persona, htmlFactores: htmlFactores, htmlPuntaje: htmlPuntaje, mostrar: mostrar, est: est, lugar: lugar, h: h, ymd: ymd, deYmd: deYmd, fDia: fDia, fHora: fHora, fDiaHora: fDiaHora, fConAnio: fConAnio, leer: leer, guardar: guardar, inicioDia: inicioDia };
   activar(leer('astro.activo', null)); pintarSelector();
   // Las pantallas de prueba (voces y comparación de modelos) se ven solo trabajando en la compu, no en la app pública
-  if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) document.querySelectorAll('[data-tab=voces], [data-tab=comparar]').forEach(function (b) { b.hidden = true; });
+  if (window.Capacitor || !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) document.querySelectorAll('[data-tab=voces], [data-tab=comparar]').forEach(function (b) { b.hidden = true; });
   window.addEventListener('DOMContentLoaded', function () { mostrar('inicio'); if (window.Biblioteca) Biblioteca.iniciar(); });
 })();

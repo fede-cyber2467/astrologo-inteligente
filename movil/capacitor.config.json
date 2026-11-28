@@ -1,0 +1,6 @@
+{
+  "appId": "app.uraluna",
+  "appName": "Uraluna",
+  "webDir": "www",
+  "ios": { "contentInset": "never" }
+}

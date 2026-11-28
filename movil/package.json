@@ -1,0 +1,16 @@
+{
+  "name": "uraluna-movil",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Envoltorio nativo (Capacitor) de la web de Uraluna",
+  "scripts": {
+    "web": "node copiar-web.js",
+    "sync": "node copiar-web.js && cap sync"
+  },
+  "dependencies": {
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/cli": "^8.6.3",
+    "@capacitor/core": "^8.6.3",
+    "@capacitor/ios": "^8.6.3"
+  }
+}
